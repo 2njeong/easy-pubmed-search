@@ -1,79 +1,79 @@
-# PubMed Query Extension MVP Design
+# PubMed 검색식 생성 크롬 익스텐션 MVP 설계
 
-## Goal
+## 목표
 
-Build a Chrome extension that helps medical users translate natural-language research intent into a PubMed search query. The extension is not a literature search engine and does not claim to know the newest papers. Its primary job is to draft PubMed syntax, explain that syntax, and suggest possible MeSH terms for user review.
+의료 사용자가 자연어로 작성한 연구 질문이나 검색 의도를 PubMed 검색식으로 변환하는 크롬 익스텐션을 만든다. 이 익스텐션은 최신 논문을 직접 찾아주는 문헌 검색 엔진이 아니며, 최신 논문 정보를 알고 있다고 주장하지 않는다. 핵심 역할은 PubMed 검색 문법에 맞는 초안을 만들고, 그 문법을 설명하며, 사용자가 검토할 수 있는 MeSH 후보를 제안하는 것이다.
 
-## Product Scope
+## 제품 범위
 
-The MVP is a toolbar popup extension. It does not inject UI into PubMed pages, automatically run searches, or modify PubMed DOM. Users copy the generated query and paste it into PubMed themselves.
+MVP는 크롬 툴바 팝업 형태의 익스텐션이다. PubMed 페이지에 UI를 삽입하지 않고, 검색을 자동 실행하지 않으며, PubMed DOM을 수정하지 않는다. 사용자는 생성된 검색식을 복사한 뒤 PubMed에 직접 붙여넣어 검색한다.
 
-The MVP supports local LLM runtimes:
+MVP는 다음 로컬 LLM 런타임을 지원한다.
 
-- Ollama, default endpoint `http://localhost:11434`
-- LM Studio, default endpoint `http://localhost:1234/v1`
+- Ollama, 기본 endpoint `http://localhost:11434`
+- LM Studio, 기본 endpoint `http://localhost:1234/v1`
 
-OpenAI, Claude, Gemini, OpenRouter, and institutional LLM endpoints are intentionally out of MVP scope, but the provider interface must allow adding them later.
+OpenAI, Claude, Gemini, OpenRouter, 기관 내부 LLM endpoint는 MVP 범위에서 제외한다. 다만 이후 provider를 추가할 수 있도록 내부 provider interface는 확장 가능하게 설계한다.
 
-## Core User Flow
+## 핵심 사용자 흐름
 
-1. User installs the Chrome extension.
-2. First launch shows local LLM onboarding.
-3. User chooses Ollama or LM Studio.
-4. Extension shows setup guidance, recommended model sizes, and default endpoint.
-5. User tests the connection.
-6. If connection succeeds, user enters a natural-language research question.
-7. Extension sends the prompt to the selected local provider.
-8. Extension displays a PubMed query draft, syntax explanation, MeSH term candidates, and cautions.
-9. User copies the query and manually searches PubMed.
+1. 사용자가 크롬 익스텐션을 설치한다.
+2. 첫 실행 시 로컬 LLM 온보딩 화면을 보여준다.
+3. 사용자가 Ollama 또는 LM Studio를 선택한다.
+4. 익스텐션이 설치 안내, 추천 모델 크기, 기본 endpoint를 보여준다.
+5. 사용자가 연결 테스트를 실행한다.
+6. 연결이 성공하면 사용자가 자연어 연구 질문을 입력한다.
+7. 익스텐션이 선택된 로컬 provider로 프롬프트를 보낸다.
+8. 익스텐션이 PubMed 검색식 초안, 문법 설명, MeSH 후보, 주의사항을 표시한다.
+9. 사용자가 검색식을 복사해서 PubMed에서 직접 검색한다.
 
-## First-Run Onboarding
+## 첫 실행 온보딩
 
-The onboarding screen is required because the extension does not bundle a local LLM. Users must install and run either Ollama or LM Studio separately.
+익스텐션은 로컬 LLM을 포함하지 않으므로 온보딩 화면이 필수다. 사용자는 Ollama 또는 LM Studio를 별도로 설치하고 실행해야 한다.
 
-The onboarding must include:
+온보딩에는 다음 항목이 포함되어야 한다.
 
-- Provider selector: Ollama or LM Studio
-- Short explanation that Ollama and LM Studio are local LLM runtimes, not models
-- Setup steps for each provider
-- Recommended model guidance:
-  - 4B class for low-resource machines
-  - 7B or 8B class for most laptops
-  - 12B to 14B class for better quality when hardware allows
-- Suggested model families: Gemma, Qwen, Llama, Mistral
-- Endpoint field with provider-specific default
-- Model name field
-- Connection test button
-- Clear success and failure messages
+- Provider 선택: Ollama 또는 LM Studio
+- Ollama와 LM Studio는 모델이 아니라 로컬 LLM 런타임이라는 짧은 설명
+- provider별 설치 및 실행 안내
+- 추천 모델 안내:
+  - 저사양 기기: 4B급 모델
+  - 일반 노트북: 7B 또는 8B급 모델
+  - 성능 여유가 있는 환경: 12B-14B급 모델
+- 추천 모델 계열: Gemma, Qwen, Llama, Mistral
+- provider별 기본값이 들어간 endpoint 입력 필드
+- 모델명 입력 필드
+- 연결 테스트 버튼
+- 명확한 성공 및 실패 메시지
 
-Failure messages should distinguish:
+실패 메시지는 다음 상황을 구분해야 한다.
 
-- Provider server is not running
-- Endpoint is unreachable
-- Model name is missing or unavailable
-- Response format is invalid
-- Browser or extension permission blocked the request
+- provider 서버가 실행 중이 아님
+- endpoint에 접근할 수 없음
+- 모델명이 비어 있거나 사용할 수 없음
+- 응답 형식이 올바르지 않음
+- 브라우저 또는 익스텐션 권한 때문에 요청이 차단됨
 
-## Main Popup
+## 메인 팝업
 
-The main popup is compact but complete. It contains:
+메인 팝업은 작지만 필요한 기능을 모두 갖춘다. 포함 요소는 다음과 같다.
 
-- Provider status indicator
-- Settings entry point
-- Natural-language input area
-- Generate button
-- Loading state
-- Generated PubMed query output
-- Copy query button
-- Syntax explanation section
-- MeSH candidates section
-- Cautions section
+- Provider 상태 표시
+- 설정 진입 버튼
+- 자연어 입력 영역
+- 생성 버튼
+- 로딩 상태
+- 생성된 PubMed 검색식 출력
+- 검색식 복사 버튼
+- 문법 설명 섹션
+- MeSH 후보 섹션
+- 주의사항 섹션
 
-The popup should make the generated query the primary result. Explanation and MeSH candidates support trust and review, but should not visually compete with the query.
+팝업에서는 생성된 검색식이 가장 중요한 결과로 보여야 한다. 문법 설명과 MeSH 후보는 신뢰와 검토를 돕는 보조 정보이며, 검색식보다 시각적으로 더 강하게 보이면 안 된다.
 
-## LLM Output Contract
+## LLM 응답 계약
 
-The extension asks the LLM for structured JSON and validates the result before rendering. The expected shape is:
+익스텐션은 LLM에 구조화된 JSON 응답을 요청하고, 렌더링 전에 응답을 검증한다. 기대하는 형태는 다음과 같다.
 
 ```json
 {
@@ -95,20 +95,20 @@ The extension asks the LLM for structured JSON and validates the result before r
 }
 ```
 
-The system prompt must explicitly say:
+시스템 프롬프트에는 다음 내용을 명시해야 한다.
 
-- Do not claim to search PubMed in real time.
-- Do not invent paper counts or newest papers.
-- Treat MeSH terms as candidates unless verified.
-- Prefer PubMed-compatible field tags such as `[Title/Abstract]`, `[MeSH Terms]`, `[Publication Type]`, and date filters when relevant.
-- Preserve important clinical concepts from the user input.
-- Return JSON only.
+- PubMed를 실시간으로 검색한다고 주장하지 않는다.
+- 논문 개수나 최신 논문 정보를 지어내지 않는다.
+- MeSH 용어는 검증된 사실이 아니라 후보로 취급한다.
+- 필요할 때 `[Title/Abstract]`, `[MeSH Terms]`, `[Publication Type]`, 날짜 필터 등 PubMed 호환 필드 태그를 우선 사용한다.
+- 사용자가 입력한 중요한 임상 개념을 보존한다.
+- JSON만 반환한다.
 
-If JSON parsing fails, the UI should show a readable error and keep the raw response behind a small expandable debug section for troubleshooting.
+JSON 파싱에 실패하면 UI는 사용자가 이해할 수 있는 오류를 표시하고, 문제 해결을 위해 원본 응답을 작은 접이식 디버그 영역에 보관한다.
 
-## Provider Architecture
+## Provider 아키텍처
 
-Use a provider interface with a single generation capability:
+provider interface는 하나의 생성 기능을 중심으로 둔다.
 
 ```ts
 interface LlmProvider {
@@ -118,92 +118,92 @@ interface LlmProvider {
 }
 ```
 
-Ollama implementation:
+Ollama 구현:
 
-- Calls the local Ollama chat API.
-- Uses endpoint default `http://localhost:11434`.
-- Sends the configured model name.
-- Requests non-streaming structured output.
+- 로컬 Ollama chat API를 호출한다.
+- 기본 endpoint는 `http://localhost:11434`를 사용한다.
+- 설정된 모델명을 보낸다.
+- non-streaming 구조화 응답을 요청한다.
 
-LM Studio implementation:
+LM Studio 구현:
 
-- Calls OpenAI-compatible chat completions.
-- Uses endpoint default `http://localhost:1234/v1`.
-- Sends the configured model name.
-- Requests non-streaming structured output.
+- OpenAI-compatible chat completions API를 호출한다.
+- 기본 endpoint는 `http://localhost:1234/v1`를 사용한다.
+- 설정된 모델명을 보낸다.
+- non-streaming 구조화 응답을 요청한다.
 
-## Storage
+## 저장 방식
 
-Use `chrome.storage.local` for provider configuration and onboarding completion state. Store:
+provider 설정과 온보딩 완료 상태는 `chrome.storage.local`에 저장한다. 저장 항목은 다음과 같다.
 
-- Selected provider
+- 선택된 provider
 - Endpoint
-- Model name
-- Whether onboarding is complete
-- Last successful connection timestamp
+- 모델명
+- 온보딩 완료 여부
+- 마지막 연결 성공 시각
 
-Do not store patient information or generated prompts beyond the current popup session in the MVP.
+MVP에서는 환자 정보나 생성 프롬프트를 현재 팝업 세션 밖에 저장하지 않는다.
 
-## Privacy And Safety
+## 개인정보 및 안전
 
-The extension should default to local runtimes and communicate that prompts are sent to the selected local endpoint. It should not send queries to any remote API in the MVP.
+익스텐션은 로컬 런타임을 기본값으로 하며, 프롬프트가 선택된 로컬 endpoint로 전송된다는 점을 사용자에게 알린다. MVP에서는 어떤 원격 API에도 검색어나 프롬프트를 보내지 않는다.
 
-The UI should discourage entering identifiable patient information. The product is a search-query drafting assistant, not a clinical decision tool.
+UI는 식별 가능한 환자 정보를 입력하지 않도록 안내해야 한다. 이 제품은 검색식 초안 작성 도구이며, 임상 의사결정 도구가 아니다.
 
-Generated output must be copy-only. The extension does not automatically submit PubMed searches in the MVP.
+생성 결과는 복사만 가능하게 한다. MVP에서는 PubMed 검색을 자동 제출하지 않는다.
 
-## Error Handling
+## 오류 처리
 
-Errors should be user-facing and actionable:
+오류 메시지는 사용자가 다음 행동을 알 수 있게 작성한다.
 
-- "Ollama is not reachable. Open Ollama and try again."
-- "LM Studio local server is not reachable. Start the server in LM Studio."
-- "The model did not return valid JSON. Try again or choose a stronger model."
-- "No model name is configured. Add the model name in settings."
+- "Ollama에 연결할 수 없습니다. Ollama를 실행한 뒤 다시 시도하세요."
+- "LM Studio 로컬 서버에 연결할 수 없습니다. LM Studio에서 Local Server를 시작하세요."
+- "모델이 올바른 JSON을 반환하지 않았습니다. 다시 시도하거나 더 강한 모델을 선택하세요."
+- "모델명이 설정되어 있지 않습니다. 설정에서 모델명을 입력하세요."
 
-Developer-level details may be available in a collapsible section but should not dominate the user experience.
+개발자용 세부 정보는 접이식 영역에 둘 수 있지만, 사용자 경험의 중심에 두지 않는다.
 
-## Testing Strategy
+## 테스트 전략
 
-Unit tests:
+단위 테스트:
 
-- Provider config defaults
-- LLM response parsing
-- Validation of malformed JSON
-- Prompt construction
-- Error classification
+- provider 설정 기본값
+- LLM 응답 파싱
+- 잘못된 JSON 검증
+- 프롬프트 생성
+- 오류 분류
 
-Integration-style tests:
+통합 성격의 테스트:
 
-- Mock Ollama response
-- Mock LM Studio response
-- Onboarding completion and stored settings
-- Generate flow with success and failure states
+- Ollama mock 응답
+- LM Studio mock 응답
+- 온보딩 완료 및 설정 저장
+- 성공 및 실패 상태가 포함된 검색식 생성 흐름
 
-Manual verification:
+수동 검증:
 
-- Load unpacked extension in Chrome
-- Complete onboarding for Ollama
-- Complete onboarding for LM Studio
-- Generate query from a representative clinical question
-- Copy query output
-- Confirm no automatic PubMed navigation or DOM modification occurs
+- Chrome에서 unpacked extension으로 로드
+- Ollama 온보딩 완료
+- LM Studio 온보딩 완료
+- 대표적인 임상 질문으로 검색식 생성
+- 검색식 복사
+- PubMed 자동 이동이나 DOM 수정이 발생하지 않는지 확인
 
-## Out Of Scope For MVP
+## MVP 범위 제외
 
-- PubMed page DOM injection
-- Automatic PubMed search execution
-- Real-time PubMed result retrieval
-- Verified MeSH lookup through NLM APIs
-- Cloud LLM providers
-- User accounts or sync
-- Query history
+- PubMed 페이지 DOM 삽입
+- PubMed 검색 자동 실행
+- 실시간 PubMed 결과 조회
+- NLM API를 통한 검증된 MeSH 조회
+- 클라우드 LLM provider
+- 사용자 계정 또는 동기화
+- 검색 기록
 
-## Future Extensions
+## 향후 확장
 
-- PubMed page side panel
-- NLM MeSH lookup integration
-- PubMed result count preview
-- OpenAI, Claude, Gemini, OpenRouter, and institutional provider support
-- Query history with explicit user opt-in
-- Korean and English prompt templates
+- PubMed 페이지 사이드패널
+- NLM MeSH 조회 연동
+- PubMed 결과 개수 미리보기
+- OpenAI, Claude, Gemini, OpenRouter, 기관 내부 provider 지원
+- 사용자 명시적 동의 기반 검색 기록
+- 한국어 및 영어 프롬프트 템플릿
