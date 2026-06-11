@@ -4,10 +4,15 @@
   "description": "자연어 연구 질문을 PubMed 검색식 초안으로 변환합니다.",
   "version": "0.1.0",
   "action": {
-    "default_title": "Easy PubMed Search",
-    "default_popup": "index.html"
+    "default_title": "Easy PubMed Search"
   },
-  "permissions": ["storage"],
+  "permissions": ["storage", "sidePanel"],
+  "background": {
+    "service_worker": "service-worker.js"
+  },
+  "side_panel": {
+    "default_path": "index.html"
+  },
   "host_permissions": [
     "http://localhost/*",
     "http://127.0.0.1/*"

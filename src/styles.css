@@ -11,7 +11,8 @@
 }
 
 body {
-  width: 420px;
+  width: 100%;
+  min-width: 360px;
   min-height: 560px;
   margin: 0;
   background: #f7f8fa;
@@ -35,6 +36,7 @@ button:disabled {
 
 .app-shell {
   min-height: 560px;
+  max-width: 520px;
   padding: 16px;
 }
 
@@ -96,6 +98,10 @@ button:disabled {
   background: #ffffff;
 }
 
+.segmented.compact {
+  margin-top: -4px;
+}
+
 .segmented button,
 .icon-button {
   border: 0;
@@ -137,6 +143,48 @@ button:disabled {
 
 .guide li + li {
   margin-top: 6px;
+}
+
+.install-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 36px;
+  margin-top: 10px;
+  border-radius: 8px;
+  background: #edf4ff;
+  color: #1f4d8f;
+  font-size: 13px;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.command-list {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.command-list button {
+  min-height: 32px;
+  border: 1px solid #c8d8f3;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #1f4d8f;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.command-list code {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.command-list span {
+  color: #16703c;
+  font-size: 12px;
+  font-weight: 650;
 }
 
 .guide code {
