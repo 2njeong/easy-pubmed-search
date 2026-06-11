@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Easy PubMed Search",
+  "description": "자연어 연구 질문을 PubMed 검색식 초안으로 변환합니다.",
+  "version": "0.1.0",
+  "action": {
+    "default_title": "Easy PubMed Search",
+    "default_popup": "index.html"
+  },
+  "permissions": ["storage"],
+  "host_permissions": [
+    "http://localhost/*",
+    "http://127.0.0.1/*"
+  ]
+}
