@@ -10,7 +10,7 @@ describe("settings storage", () => {
     await expect(getSettings()).resolves.toMatchObject({
       provider: "ollama",
       endpoint: "http://localhost:11434",
-      model: "gemma3",
+      model: "llama3.2:latest",
       onboardingComplete: false,
     });
   });

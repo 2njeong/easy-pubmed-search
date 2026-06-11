@@ -16,7 +16,7 @@ export const ollamaProvider: LlmProvider = {
   id: "ollama",
   label: "Ollama",
   defaultEndpoint: "http://localhost:11434",
-  defaultModel: "gemma3",
+  defaultModel: "llama3.2:latest",
 
   async testConnection(config: ProviderConfig): Promise<ConnectionResult> {
     const response = await fetch(`${trimEndpoint(config.endpoint)}/api/show`, {

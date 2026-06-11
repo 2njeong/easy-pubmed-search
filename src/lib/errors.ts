@@ -27,7 +27,7 @@ export function classifyProviderError(error: unknown, provider: ProviderId): Use
   return {
     title: `${providerName(provider)}에 연결할 수 없습니다.`,
     message: provider === "ollama"
-      ? "Ollama를 실행한 뒤 다시 시도하세요."
+      ? "Ollama가 실행 중인지, 모델명이 맞는지, Chrome 익스텐션 접근을 위해 OLLAMA_ORIGINS가 설정되어 있는지 확인하세요."
       : "LM Studio에서 Local Server를 시작하세요.",
     debug,
   };

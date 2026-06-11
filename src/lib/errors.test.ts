@@ -5,7 +5,7 @@ describe("classifyProviderError", () => {
   it("classifies network failures", () => {
     expect(classifyProviderError(new TypeError("Failed to fetch"), "ollama")).toEqual({
       title: "Ollama에 연결할 수 없습니다.",
-      message: "Ollama를 실행한 뒤 다시 시도하세요.",
+      message: "Ollama가 실행 중인지, 모델명이 맞는지, Chrome 익스텐션 접근을 위해 OLLAMA_ORIGINS가 설정되어 있는지 확인하세요.",
       debug: "Failed to fetch",
     });
   });

@@ -123,11 +123,33 @@ button:disabled {
 }
 
 .guide p,
+.guide ol,
 .error-box p {
   margin: 6px 0 0;
   color: #5f6b7a;
   font-size: 13px;
   line-height: 1.45;
+}
+
+.guide ol {
+  padding-left: 18px;
+}
+
+.guide li + li {
+  margin-top: 6px;
+}
+
+.guide code {
+  border-radius: 4px;
+  background: #eef2f7;
+  color: #263449;
+  padding: 1px 4px;
+  font-size: 12px;
+}
+
+.guide-note {
+  border-top: 1px solid #e6ebf2;
+  padding-top: 8px;
 }
 
 .field {

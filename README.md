@@ -20,7 +20,7 @@ MVP는 PubMed 페이지에 UI를 삽입하지 않고, 검색을 자동 실행하
 ### Ollama
 
 - 기본 endpoint: `http://localhost:11434`
-- 추천 모델 예시: `gemma3`, `qwen3`, `llama3.1`
+- 추천 모델 예시: `llama3.2:latest`, `gemma3`, `qwen3`
 
 ### LM Studio
 
