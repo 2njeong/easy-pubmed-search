@@ -5,7 +5,7 @@
 ## MVP 범위
 
 - 크롬 side panel
-- Ollama 및 LM Studio 로컬 LLM 지원
+- Ollama 로컬 LLM 지원
 - PubMed 검색식 생성
 - 문법 설명
 - MeSH 후보 제안
@@ -15,7 +15,7 @@ MVP는 PubMed 페이지에 UI를 삽입하지 않고, 검색을 자동 실행하
 
 ## 로컬 LLM 준비
 
-이 익스텐션은 LLM을 포함하지 않습니다. 사용자는 Ollama 또는 LM Studio를 별도로 설치하고 모델을 실행해야 합니다.
+이 익스텐션은 LLM을 포함하지 않습니다. 사용자는 Ollama를 별도로 설치하고 모델을 실행해야 합니다.
 
 ### Ollama
 
@@ -24,12 +24,6 @@ MVP는 PubMed 페이지에 UI를 삽입하지 않고, 검색을 자동 실행하
 - 추천 모델 예시: `gemma4:latest`, `gemma3`, `qwen3`
 - Chrome 익스텐션에서 Ollama를 쓰려면 `OLLAMA_ORIGINS`에 현재 익스텐션 ID만 허용합니다.
 - Ollama가 외부 네트워크에 노출되지 않도록 `OLLAMA_HOST`는 `127.0.0.1:11434`로 설정합니다.
-
-### LM Studio
-
-- 기본 endpoint: `http://localhost:1234/v1`
-- 설치: <https://lmstudio.ai/download>
-- LM Studio에서 Local Server를 켠 뒤 모델명을 입력합니다.
 
 ## 개발
 

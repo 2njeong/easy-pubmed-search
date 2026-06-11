@@ -4,6 +4,7 @@ import type { SearchHistoryItem, StoredSettings } from "../types";
 const STORAGE_KEY = "easyPubMedSearch.settings";
 const HISTORY_KEY = "easyPubMedSearch.history";
 const MAX_HISTORY_ITEMS = 20;
+const LEGACY_OLLAMA_DEFAULT_MODELS = new Set(["gemma3", "llama3.2:latest"]);
 
 const defaultSettings: StoredSettings = {
   ...getDefaultConfig("ollama"),
@@ -14,14 +15,31 @@ function hasChromeStorage(): boolean {
   return typeof chrome !== "undefined" && Boolean(chrome.storage?.local);
 }
 
+function normalizeSettings(settings: Partial<StoredSettings> | undefined): StoredSettings {
+  const merged = { ...defaultSettings, ...settings };
+
+  if (merged.provider !== "ollama") {
+    return defaultSettings;
+  }
+
+  if (LEGACY_OLLAMA_DEFAULT_MODELS.has(merged.model)) {
+    return {
+      ...merged,
+      model: defaultSettings.model,
+    };
+  }
+
+  return merged;
+}
+
 export async function getSettings(): Promise<StoredSettings> {
   if (hasChromeStorage()) {
     const result = await chrome.storage.local.get(STORAGE_KEY);
-    return { ...defaultSettings, ...(result[STORAGE_KEY] as Partial<StoredSettings> | undefined) };
+    return normalizeSettings(result[STORAGE_KEY] as Partial<StoredSettings> | undefined);
   }
 
   const raw = localStorage.getItem(STORAGE_KEY);
-  return raw ? { ...defaultSettings, ...JSON.parse(raw) as Partial<StoredSettings> } : defaultSettings;
+  return normalizeSettings(raw ? JSON.parse(raw) as Partial<StoredSettings> : undefined);
 }
 
 export async function saveSettings(settings: StoredSettings): Promise<void> {

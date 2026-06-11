@@ -15,7 +15,7 @@ describe("settings storage", () => {
     });
   });
 
-  it("saves and loads settings", async () => {
+  it("migrates LM Studio settings back to Ollama defaults", async () => {
     await saveSettings({
       provider: "lmstudio",
       endpoint: "http://localhost:1234/v1",
@@ -25,7 +25,24 @@ describe("settings storage", () => {
     });
 
     await expect(getSettings()).resolves.toMatchObject({
-      provider: "lmstudio",
+      provider: "ollama",
+      endpoint: "http://localhost:11434",
+      model: "gemma4:latest",
+      onboardingComplete: false,
+    });
+  });
+
+  it("migrates legacy Ollama default models to gemma4", async () => {
+    await saveSettings({
+      provider: "ollama",
+      endpoint: "http://localhost:11434",
+      model: "llama3.2:latest",
+      onboardingComplete: true,
+    });
+
+    await expect(getSettings()).resolves.toMatchObject({
+      provider: "ollama",
+      model: "gemma4:latest",
       onboardingComplete: true,
     });
   });
