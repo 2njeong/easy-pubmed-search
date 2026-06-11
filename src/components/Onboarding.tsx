@@ -169,9 +169,6 @@ export function Onboarding({ initialSettings, onComplete }: OnboardingProps) {
             </ol>
           </>
         )}
-        <p className="guide-note">
-          Gemma 4는 variant에 따라 무게가 다릅니다. 4B급은 일반 PC 후보, 26B/31B급은 고사양 GPU 환경에 가깝습니다.
-        </p>
       </div>
 
       <label className="field">

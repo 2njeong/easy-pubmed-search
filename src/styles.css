@@ -167,18 +167,22 @@ button:disabled {
 }
 
 .command-list button {
-  min-height: 32px;
+  justify-self: end;
+  min-height: 24px;
   border: 1px solid #c8d8f3;
-  border-radius: 8px;
+  border-radius: 999px;
   background: #ffffff;
   color: #1f4d8f;
-  font-size: 12px;
+  padding: 2px 8px;
+  font-size: 11px;
   font-weight: 750;
 }
 
 .command-list code {
   display: block;
   overflow-wrap: anywhere;
+  margin-top: -2px;
+  line-height: 1.5;
 }
 
 .command-list span {
@@ -307,6 +311,53 @@ button:disabled {
   color: #415064;
   font-size: 12px;
   line-height: 1.45;
+}
+
+.history-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.history-list button {
+  display: grid;
+  width: 100%;
+  gap: 4px;
+  border: 1px solid #d8dee8;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 10px;
+  color: #18212f;
+  text-align: left;
+}
+
+.history-list strong {
+  overflow: hidden;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history-list span {
+  color: #5f6b7a;
+  font-size: 11px;
+}
+
+.history-list code {
+  overflow: hidden;
+  color: #415064;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .spin {

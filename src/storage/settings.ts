@@ -1,7 +1,9 @@
 import { getDefaultConfig } from "../providers";
-import type { StoredSettings } from "../types";
+import type { SearchHistoryItem, StoredSettings } from "../types";
 
 const STORAGE_KEY = "easyPubMedSearch.settings";
+const HISTORY_KEY = "easyPubMedSearch.history";
+const MAX_HISTORY_ITEMS = 20;
 
 const defaultSettings: StoredSettings = {
   ...getDefaultConfig("ollama"),
@@ -29,4 +31,36 @@ export async function saveSettings(settings: StoredSettings): Promise<void> {
   }
 
   localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+}
+
+export async function getHistory(): Promise<SearchHistoryItem[]> {
+  if (hasChromeStorage()) {
+    const result = await chrome.storage.local.get(HISTORY_KEY);
+    return Array.isArray(result[HISTORY_KEY]) ? result[HISTORY_KEY] as SearchHistoryItem[] : [];
+  }
+
+  const raw = localStorage.getItem(HISTORY_KEY);
+  return raw ? JSON.parse(raw) as SearchHistoryItem[] : [];
+}
+
+export async function saveHistoryItem(item: SearchHistoryItem): Promise<SearchHistoryItem[]> {
+  const nextHistory = [item, ...(await getHistory()).filter((historyItem) => historyItem.id !== item.id)]
+    .slice(0, MAX_HISTORY_ITEMS);
+
+  if (hasChromeStorage()) {
+    await chrome.storage.local.set({ [HISTORY_KEY]: nextHistory });
+  } else {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(nextHistory));
+  }
+
+  return nextHistory;
+}
+
+export async function clearHistory(): Promise<void> {
+  if (hasChromeStorage()) {
+    await chrome.storage.local.remove(HISTORY_KEY);
+    return;
+  }
+
+  localStorage.removeItem(HISTORY_KEY);
 }

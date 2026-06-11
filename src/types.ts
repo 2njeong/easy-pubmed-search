@@ -39,6 +39,15 @@ export interface GeneratedQuery {
   raw?: string;
 }
 
+export interface SearchHistoryItem {
+  id: string;
+  createdAt: string;
+  question: string;
+  provider: ProviderId;
+  model: string;
+  result: GeneratedQuery;
+}
+
 export interface ConnectionResult {
   ok: boolean;
   message: string;
