@@ -15,6 +15,14 @@ function detectDefaultOs(): SetupOs {
   return navigator.userAgent.toLowerCase().includes("mac") ? "mac" : "windows";
 }
 
+function getExtensionOrigin(): string {
+  if (typeof chrome !== "undefined" && chrome.runtime?.id) {
+    return `chrome-extension://${chrome.runtime.id}`;
+  }
+
+  return "chrome-extension://<확장 프로그램 ID>";
+}
+
 export function Onboarding({ initialSettings, onComplete }: OnboardingProps) {
   const [providerId, setProviderId] = useState<ProviderId>(initialSettings.provider);
   const [setupOs, setSetupOs] = useState<SetupOs>(detectDefaultOs);
@@ -27,10 +35,14 @@ export function Onboarding({ initialSettings, onComplete }: OnboardingProps) {
 
   const provider = getProvider(providerId);
   const isOllama = providerId === "ollama";
+  const extensionOrigin = getExtensionOrigin();
   const pullCommand = "ollama pull gemma4";
+  const localOnlyCommand = setupOs === "windows"
+    ? "[Environment]::SetEnvironmentVariable('OLLAMA_HOST','127.0.0.1:11434','User')"
+    : "launchctl setenv OLLAMA_HOST \"127.0.0.1:11434\"";
   const originCommand = setupOs === "windows"
-    ? "[Environment]::SetEnvironmentVariable('OLLAMA_ORIGINS','chrome-extension://*,http://localhost:*,http://127.0.0.1:*','User')"
-    : "launchctl setenv OLLAMA_ORIGINS \"chrome-extension://*,http://localhost:*,http://127.0.0.1:*\"";
+    ? `[Environment]::SetEnvironmentVariable('OLLAMA_ORIGINS','${extensionOrigin},http://localhost:*,http://127.0.0.1:*','User')`
+    : `launchctl setenv OLLAMA_ORIGINS "${extensionOrigin},http://localhost:*,http://127.0.0.1:*"`;
 
   function selectProvider(nextProvider: ProviderId) {
     const defaults = getDefaultConfig(nextProvider);
@@ -109,6 +121,7 @@ export function Onboarding({ initialSettings, onComplete }: OnboardingProps) {
                 <li>위 버튼을 눌러 Ollama for Windows를 다운로드하고 설치합니다.</li>
                 <li>시작 메뉴에서 Ollama를 실행합니다.</li>
                 <li>아래 모델 다운로드 명령을 복사해서 PowerShell에 붙여넣습니다.</li>
+                <li>아래 로컬 전용 실행 명령을 복사해서 PowerShell에 붙여넣습니다.</li>
                 <li>아래 Chrome 연결 허용 명령을 복사해서 PowerShell에 붙여넣은 뒤 Ollama를 재시작합니다.</li>
                 <li>모델명에는 <code>gemma4:latest</code>를 입력합니다. 설치된 이름이 다르면 그 이름을 사용하세요.</li>
               </ol>
@@ -117,6 +130,7 @@ export function Onboarding({ initialSettings, onComplete }: OnboardingProps) {
                 <li>위 버튼을 눌러 Ollama for macOS를 다운로드하고 설치합니다.</li>
                 <li>Ollama 앱을 실행합니다.</li>
                 <li>아래 모델 다운로드 명령을 복사해서 터미널에 붙여넣습니다.</li>
+                <li>아래 로컬 전용 실행 명령을 복사해서 터미널에 붙여넣습니다.</li>
                 <li>아래 Chrome 연결 허용 명령을 복사해서 터미널에 붙여넣은 뒤 Ollama를 재시작합니다.</li>
                 <li>모델명에는 <code>gemma4:latest</code>를 입력합니다. 설치된 이름이 다르면 그 이름을 사용하세요.</li>
               </ol>
@@ -126,11 +140,19 @@ export function Onboarding({ initialSettings, onComplete }: OnboardingProps) {
                 모델 다운로드 명령 복사
               </button>
               <code>{pullCommand}</code>
+              <button type="button" onClick={() => copySetupCommand("host", localOnlyCommand)}>
+                로컬 전용 실행 명령 복사
+              </button>
+              <code>{localOnlyCommand}</code>
               <button type="button" onClick={() => copySetupCommand("origin", originCommand)}>
                 Chrome 연결 허용 명령 복사
               </button>
               <code>{originCommand}</code>
-              {copiedSetup ? <span>{copiedSetup === "model" ? "모델 다운로드" : "Chrome 연결 허용"} 명령을 복사했습니다.</span> : null}
+              {copiedSetup ? (
+                <span>
+                  {copiedSetup === "model" ? "모델 다운로드" : copiedSetup === "host" ? "로컬 전용 실행" : "Chrome 연결 허용"} 명령을 복사했습니다.
+                </span>
+              ) : null}
             </div>
           </>
         ) : (

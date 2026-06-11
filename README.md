@@ -22,7 +22,8 @@ MVP는 PubMed 페이지에 UI를 삽입하지 않고, 검색을 자동 실행하
 - 기본 endpoint: `http://localhost:11434`
 - 설치: <https://ollama.com/download>
 - 추천 모델 예시: `gemma4:latest`, `gemma3`, `qwen3`
-- Chrome 익스텐션에서 Ollama를 쓰려면 `OLLAMA_ORIGINS`에 `chrome-extension://*` 접근을 허용해야 합니다.
+- Chrome 익스텐션에서 Ollama를 쓰려면 `OLLAMA_ORIGINS`에 현재 익스텐션 ID만 허용합니다.
+- Ollama가 외부 네트워크에 노출되지 않도록 `OLLAMA_HOST`는 `127.0.0.1:11434`로 설정합니다.
 
 ### LM Studio
 
