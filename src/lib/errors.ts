@@ -8,7 +8,10 @@ export function classifyProviderError(error: unknown, provider: ProviderId): Use
   const debug = error instanceof Error ? error.message : String(error);
   const lower = debug.toLowerCase();
 
-  if (lower.includes("model") && (lower.includes("not found") || lower.includes("missing"))) {
+  if (
+    lower.includes("404") ||
+    (lower.includes("model") && (lower.includes("not found") || lower.includes("missing")))
+  ) {
     return {
       title: "모델을 사용할 수 없습니다.",
       message: "설정에서 모델명을 확인하고, 로컬 런타임에 해당 모델이 설치되어 있는지 확인하세요.",

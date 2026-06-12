@@ -4,7 +4,7 @@ import type { SearchHistoryItem, StoredSettings } from "../types";
 const STORAGE_KEY = "easyPubMedSearch.settings";
 const HISTORY_KEY = "easyPubMedSearch.history";
 const MAX_HISTORY_ITEMS = 20;
-const LEGACY_OLLAMA_DEFAULT_MODELS = new Set(["gemma3", "llama3.2:latest"]);
+const LEGACY_OLLAMA_DEFAULT_MODELS = new Set(["gemma3", "gemma4", "gemma4:latest"]);
 
 const defaultSettings: StoredSettings = {
   ...getDefaultConfig("ollama"),

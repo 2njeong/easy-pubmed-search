@@ -3,7 +3,12 @@ import { useEffect, useState } from "react";
 import { classifyProviderError } from "../lib/errors";
 import { getProvider } from "../providers";
 import { clearHistory, getHistory, saveHistoryItem } from "../storage/settings";
-import type { GeneratedQuery, SearchHistoryItem, StoredSettings, UserFacingError } from "../types";
+import type {
+  GeneratedQuery,
+  SearchHistoryItem,
+  StoredSettings,
+  UserFacingError,
+} from "../types";
 
 interface GeneratorProps {
   settings: StoredSettings;
@@ -11,7 +16,9 @@ interface GeneratorProps {
 }
 
 export function Generator({ settings, onOpenSettings }: GeneratorProps) {
-  const [activeView, setActiveView] = useState<"compose" | "history">("compose");
+  const [activeView, setActiveView] = useState<"compose" | "history">(
+    "compose"
+  );
   const [question, setQuestion] = useState("");
   const [result, setResult] = useState<GeneratedQuery | null>(null);
   const [history, setHistory] = useState<SearchHistoryItem[]>([]);
@@ -30,7 +37,10 @@ export function Generator({ settings, onOpenSettings }: GeneratorProps) {
     setError(null);
     setCopied(false);
     try {
-      const nextResult = await provider.generatePubMedQuery({ question }, settings);
+      const nextResult = await provider.generatePubMedQuery(
+        { question },
+        settings
+      );
       setResult(nextResult);
       const nextHistory = await saveHistoryItem({
         id: crypto.randomUUID(),
@@ -71,17 +81,29 @@ export function Generator({ settings, onOpenSettings }: GeneratorProps) {
   return (
     <section className="stack">
       <div className="status-row">
-        <span>{provider.label} · {settings.model}</span>
-        <button className="icon-button" onClick={onOpenSettings} aria-label="설정 열기">
+        <span>
+          {provider.label} · {settings.model}
+        </span>
+        <button
+          className="icon-button"
+          onClick={onOpenSettings}
+          aria-label="설정 열기"
+        >
           <Settings size={16} aria-hidden="true" />
         </button>
       </div>
 
       <div className="segmented compact" role="tablist" aria-label="화면 선택">
-        <button className={activeView === "compose" ? "active" : ""} onClick={() => setActiveView("compose")}>
+        <button
+          className={activeView === "compose" ? "active" : ""}
+          onClick={() => setActiveView("compose")}
+        >
           생성
         </button>
-        <button className={activeView === "history" ? "active" : ""} onClick={() => setActiveView("history")}>
+        <button
+          className={activeView === "history" ? "active" : ""}
+          onClick={() => setActiveView("history")}
+        >
           기록
         </button>
       </div>
@@ -94,12 +116,18 @@ export function Generator({ settings, onOpenSettings }: GeneratorProps) {
               value={question}
               onChange={(event) => setQuestion(event.target.value)}
               rows={6}
-              placeholder="예: 성인 심부전 환자에서 SGLT2 억제제가 입원율을 줄이는지 보고 싶다."
+              placeholder="예: 성인 심부전 환자에서 SGLT2 억제제와 입원율과의 상관관계"
             />
           </label>
 
-          <button className="primary-button" onClick={generate} disabled={isGenerating || question.trim().length < 4}>
-            {isGenerating ? <Loader2 className="spin" size={16} aria-hidden="true" /> : null}
+          <button
+            className="primary-button"
+            onClick={generate}
+            disabled={isGenerating || question.trim().length < 4}
+          >
+            {isGenerating ? (
+              <Loader2 className="spin" size={16} aria-hidden="true" />
+            ) : null}
             {isGenerating ? "검색식 생성 중..." : "PubMed 검색식 생성"}
           </button>
         </>
@@ -107,7 +135,12 @@ export function Generator({ settings, onOpenSettings }: GeneratorProps) {
         <div className="history-panel">
           <div className="result-header">
             <h2>검색 기록</h2>
-            <button className="icon-button" onClick={clearSearchHistory} aria-label="검색 기록 삭제" disabled={!history.length}>
+            <button
+              className="icon-button"
+              onClick={clearSearchHistory}
+              aria-label="검색 기록 삭제"
+              disabled={!history.length}
+            >
               <Trash2 size={15} aria-hidden="true" />
             </button>
           </div>
@@ -117,7 +150,9 @@ export function Generator({ settings, onOpenSettings }: GeneratorProps) {
                 <li key={item.id}>
                   <button type="button" onClick={() => openHistoryItem(item)}>
                     <strong>{item.question}</strong>
-                    <span>{new Date(item.createdAt).toLocaleString()} · {item.model}</span>
+                    <span>
+                      {new Date(item.createdAt).toLocaleString()} · {item.model}
+                    </span>
                     <code>{item.result.query}</code>
                   </button>
                 </li>
@@ -150,20 +185,26 @@ export function Generator({ settings, onOpenSettings }: GeneratorProps) {
           <h3>문법 설명</h3>
           <ul>
             {result.explanation.map((item) => (
-              <li key={`${item.part}-${item.reason}`}><strong>{item.part}</strong>: {item.reason}</li>
+              <li key={`${item.part}-${item.reason}`}>
+                <strong>{item.part}</strong>: {item.reason}
+              </li>
             ))}
           </ul>
 
           <h3>MeSH 후보</h3>
           <ul>
             {result.meshTerms.map((item) => (
-              <li key={item.term}><strong>{item.term}</strong> ({item.confidence}): {item.note}</li>
+              <li key={item.term}>
+                <strong>{item.term}</strong> ({item.confidence}): {item.note}
+              </li>
             ))}
           </ul>
 
           <h3>주의사항</h3>
           <ul>
-            {result.cautions.map((item) => <li key={item}>{item}</li>)}
+            {result.cautions.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
           </ul>
         </div>
       ) : null}

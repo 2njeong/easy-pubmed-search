@@ -8,6 +8,8 @@ describe("buildPubMedMessages", () => {
     expect(messages[0].role).toBe("system");
     expect(messages[0].content).toContain("PubMed를 실시간으로 검색한다고 주장하지 마세요");
     expect(messages[0].content).toContain("JSON만 반환하세요");
+    expect(messages[0].content).toContain("PICO");
+    expect(messages[0].content).toContain("empagliflozin");
     expect(messages[1].content).toContain("성인 심부전");
   });
 });

@@ -34,13 +34,15 @@ export function Onboarding({ initialSettings, onComplete }: OnboardingProps) {
 
   const provider = getProvider("ollama");
   const extensionOrigin = getExtensionOrigin();
-  const pullCommand = "ollama pull gemma4";
-  const localOnlyCommand = setupOs === "windows"
-    ? "[Environment]::SetEnvironmentVariable('OLLAMA_HOST','127.0.0.1:11434','User')"
-    : "launchctl setenv OLLAMA_HOST \"127.0.0.1:11434\"";
-  const originCommand = setupOs === "windows"
-    ? `[Environment]::SetEnvironmentVariable('OLLAMA_ORIGINS','${extensionOrigin},http://localhost:*,http://127.0.0.1:*','User')`
-    : `launchctl setenv OLLAMA_ORIGINS "${extensionOrigin},http://localhost:*,http://127.0.0.1:*"`;
+  const pullCommand = "ollama pull llama3.2";
+  const localOnlyCommand =
+    setupOs === "windows"
+      ? "[Environment]::SetEnvironmentVariable('OLLAMA_HOST','127.0.0.1:11434','User')"
+      : 'launchctl setenv OLLAMA_HOST "127.0.0.1:11434"';
+  const originCommand =
+    setupOs === "windows"
+      ? `[Environment]::SetEnvironmentVariable('OLLAMA_ORIGINS','${extensionOrigin},http://localhost:*,http://127.0.0.1:*','User')`
+      : `launchctl setenv OLLAMA_ORIGINS "${extensionOrigin},http://localhost:*,http://127.0.0.1:*"`;
 
   async function copySetupCommand(label: string, command: string) {
     await navigator.clipboard.writeText(command);
@@ -75,75 +77,165 @@ export function Onboarding({ initialSettings, onComplete }: OnboardingProps) {
         <PlugZap size={18} aria-hidden="true" />
         <h2>로컬 LLM 연결 설정</h2>
       </div>
-
-      <p className="muted">
-        이 패널은 닫히지 않도록 Chrome side panel로 열립니다. 먼저 로컬 LLM 앱을 설치하고 서버를 켠 뒤 연결하세요.
-      </p>
-
-      <div className="segmented compact" role="tablist" aria-label="운영체제 선택">
-        <button className={setupOs === "windows" ? "active" : ""} onClick={() => setSetupOs("windows")}>
+      <div
+        className="segmented compact"
+        role="tablist"
+        aria-label="운영체제 선택"
+      >
+        <button
+          className={setupOs === "windows" ? "active" : ""}
+          onClick={() => setSetupOs("windows")}
+        >
           Windows
         </button>
-        <button className={setupOs === "mac" ? "active" : ""} onClick={() => setSetupOs("mac")}>
+        <button
+          className={setupOs === "mac" ? "active" : ""}
+          onClick={() => setSetupOs("mac")}
+        >
           macOS
         </button>
       </div>
 
       <div className="guide">
         <strong>{provider.label} 준비</strong>
-        <a className="install-link" href="https://ollama.com/download" target="_blank" rel="noreferrer">
+        <a
+          className="install-link"
+          href="https://ollama.com/download"
+          target="_blank"
+          rel="noreferrer"
+        >
           Ollama 설치 페이지 열기
         </a>
         {setupOs === "windows" ? (
-            <ol>
-              <li>위 버튼을 눌러 Ollama for Windows를 다운로드하고 설치합니다.</li>
-              <li>키보드의 Windows 키를 누르고 <code>powershell</code>을 입력한 뒤, <code>Windows PowerShell</code>을 클릭합니다.</li>
-              <li>아래 모델 다운로드 명령을 복사해서 PowerShell 창에 붙여넣고 Enter를 누릅니다.</li>
-              <li>아래 로컬 전용 실행 명령을 복사해서 PowerShell 창에 붙여넣고 Enter를 누릅니다.</li>
-              <li>아래 Chrome 연결 허용 명령도 같은 방식으로 실행한 뒤, Ollama를 완전히 종료했다가 다시 실행합니다.</li>
-              <li>모델명에는 <code>gemma4:latest</code>를 입력합니다.</li>
-            </ol>
+          <ol>
+            <li>
+              위 버튼을 눌러 Ollama for Windows를 다운로드하고 설치합니다.
+            </li>
+            <li>
+              키보드의 Windows 키를 누르고 <code>powershell</code>을 입력한 뒤,{" "}
+              <code>Windows PowerShell</code>을 클릭합니다.
+            </li>
+            <li>
+              아래 모델 다운로드 명령을 복사해서 PowerShell 창에 붙여넣고
+              Enter를 누릅니다.
+              <div className="command-block">
+                <button
+                  type="button"
+                  onClick={() => copySetupCommand("model", pullCommand)}
+                >
+                  복사
+                </button>
+                <code>{pullCommand}</code>
+                {copiedSetup === "model" && <span>복사했습니다.</span>}
+              </div>
+            </li>
+            <li>
+              아래 로컬 전용 실행 명령을 복사해서 PowerShell 창에 붙여넣고
+              Enter를 누릅니다.
+              <div className="command-block">
+                <button
+                  type="button"
+                  onClick={() => copySetupCommand("host", localOnlyCommand)}
+                >
+                  복사
+                </button>
+                <code>{localOnlyCommand}</code>
+                {copiedSetup === "host" && <span>복사했습니다.</span>}
+              </div>
+            </li>
+            <li>
+              아래 Chrome 연결 허용 명령도 같은 방식으로 실행한 뒤, Ollama를
+              완전히 종료했다가 다시 실행합니다.
+              <div className="command-block">
+                <button
+                  type="button"
+                  onClick={() => copySetupCommand("origin", originCommand)}
+                >
+                  복사
+                </button>
+                <code>{originCommand}</code>
+                {copiedSetup === "origin" && <span>복사했습니다.</span>}
+              </div>
+            </li>
+            <li>
+              모델명에는 <code>llama3.2:latest</code>를 입력합니다.
+            </li>
+          </ol>
         ) : (
-            <ol>
-              <li>위 버튼을 눌러 Ollama for macOS를 다운로드하고 설치합니다.</li>
-              <li>Ollama 앱을 실행합니다.</li>
-              <li>터미널 앱을 열고 아래 모델 다운로드 명령을 붙여넣은 뒤 Enter를 누릅니다.</li>
-              <li>아래 로컬 전용 실행 명령과 Chrome 연결 허용 명령도 같은 방식으로 실행한 뒤, Ollama를 완전히 종료했다가 다시 실행합니다.</li>
-              <li>모델명에는 <code>gemma4:latest</code>를 입력합니다.</li>
-            </ol>
+          <ol>
+            <li>위 버튼을 눌러 Ollama for macOS를 다운로드하고 설치합니다.</li>
+            <li>Ollama 앱을 실행합니다.</li>
+            <li>
+              터미널 앱을 열고 아래 모델 다운로드 명령을 붙여넣은 뒤 Enter를
+              누릅니다.
+              <div className="command-block">
+                <button
+                  type="button"
+                  onClick={() => copySetupCommand("model", pullCommand)}
+                >
+                  복사
+                </button>
+                <code>{pullCommand}</code>
+                {copiedSetup === "model" && <span>복사했습니다.</span>}
+              </div>
+            </li>
+            <li>
+              아래 로컬 전용 실행 명령을 터미널 앱에 붙여넣은 뒤 Enter를
+              누릅니다.
+              <div className="command-block">
+                <button
+                  type="button"
+                  onClick={() => copySetupCommand("host", localOnlyCommand)}
+                >
+                  복사
+                </button>
+                <code>{localOnlyCommand}</code>
+                {copiedSetup === "host" && <span>복사했습니다.</span>}
+              </div>
+            </li>
+            <li>
+              아래 Chrome 연결 허용 명령도 같은 방식으로 실행한 뒤, Ollama를
+              완전히 종료했다가 다시 실행합니다.
+              <div className="command-block">
+                <button
+                  type="button"
+                  onClick={() => copySetupCommand("origin", originCommand)}
+                >
+                  복사
+                </button>
+                <code>{originCommand}</code>
+                {copiedSetup === "origin" && <span>복사했습니다.</span>}
+              </div>
+            </li>
+            <li>
+              모델명에는 <code>llama3.2:latest</code>를 입력합니다.
+            </li>
+          </ol>
         )}
-        <div className="command-list">
-          <button type="button" onClick={() => copySetupCommand("model", pullCommand)}>
-            모델 다운로드 명령 복사
-          </button>
-          <code>{pullCommand}</code>
-          <button type="button" onClick={() => copySetupCommand("host", localOnlyCommand)}>
-            로컬 전용 실행 명령 복사
-          </button>
-          <code>{localOnlyCommand}</code>
-          <button type="button" onClick={() => copySetupCommand("origin", originCommand)}>
-            Chrome 연결 허용 명령 복사
-          </button>
-          <code>{originCommand}</code>
-          {copiedSetup ? (
-            <span>
-              {copiedSetup === "model" ? "모델 다운로드" : copiedSetup === "host" ? "로컬 전용 실행" : "Chrome 연결 허용"} 명령을 복사했습니다.
-            </span>
-          ) : null}
-        </div>
       </div>
 
       <label className="field">
         <span>Endpoint</span>
-        <input value={endpoint} onChange={(event) => setEndpoint(event.target.value)} />
+        <input
+          value={endpoint}
+          onChange={(event) => setEndpoint(event.target.value)}
+        />
       </label>
 
       <label className="field">
         <span>모델명</span>
-        <input value={model} onChange={(event) => setModel(event.target.value)} placeholder={provider.defaultModel} />
+        <input
+          value={model}
+          onChange={(event) => setModel(event.target.value)}
+          placeholder={provider.defaultModel}
+        />
       </label>
 
-      <button className="primary-button" onClick={testConnection} disabled={isTesting || !model.trim()}>
+      <button
+        className="primary-button"
+        onClick={testConnection}
+        disabled={isTesting || !model.trim()}
+      >
         <CheckCircle2 size={16} aria-hidden="true" />
         {isTesting ? "연결 확인 중..." : "연결 테스트"}
       </button>
@@ -153,6 +245,7 @@ export function Onboarding({ initialSettings, onComplete }: OnboardingProps) {
         <div className="error-box">
           <strong>{error.title}</strong>
           <p>{error.message}</p>
+          {error.debug ? <code className="error-debug">{error.debug}</code> : null}
         </div>
       ) : null}
     </section>

@@ -9,6 +9,6 @@ describe("App", () => {
     expect(await screen.findByText("로컬 LLM 연결 설정")).toBeInTheDocument();
     expect(screen.getByText("Ollama 준비")).toBeInTheDocument();
     expect(screen.getByText("Ollama 설치 페이지 열기")).toBeInTheDocument();
-    expect(screen.getByDisplayValue("gemma4:latest")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("llama3.2:latest")).toBeInTheDocument();
   });
 });

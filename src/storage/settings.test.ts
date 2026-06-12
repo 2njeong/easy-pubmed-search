@@ -10,7 +10,7 @@ describe("settings storage", () => {
     await expect(getSettings()).resolves.toMatchObject({
       provider: "ollama",
       endpoint: "http://localhost:11434",
-      model: "gemma4:latest",
+      model: "llama3.2:latest",
       onboardingComplete: false,
     });
   });
@@ -27,22 +27,22 @@ describe("settings storage", () => {
     await expect(getSettings()).resolves.toMatchObject({
       provider: "ollama",
       endpoint: "http://localhost:11434",
-      model: "gemma4:latest",
+      model: "llama3.2:latest",
       onboardingComplete: false,
     });
   });
 
-  it("migrates legacy Ollama default models to gemma4", async () => {
+  it("migrates legacy Ollama default models to llama3.2:latest", async () => {
     await saveSettings({
       provider: "ollama",
       endpoint: "http://localhost:11434",
-      model: "llama3.2:latest",
+      model: "gemma4:latest",
       onboardingComplete: true,
     });
 
     await expect(getSettings()).resolves.toMatchObject({
       provider: "ollama",
-      model: "gemma4:latest",
+      model: "llama3.2:latest",
       onboardingComplete: true,
     });
   });
@@ -60,7 +60,7 @@ describe("settings storage", () => {
       createdAt: "2026-06-10T00:00:00.000Z",
       question: "old question",
       provider: "ollama",
-      model: "gemma4:latest",
+      model: "llama3.2:latest",
       result,
     });
     await saveHistoryItem({
@@ -68,7 +68,7 @@ describe("settings storage", () => {
       createdAt: "2026-06-11T00:00:00.000Z",
       question: "new question",
       provider: "ollama",
-      model: "gemma4:latest",
+      model: "llama3.2:latest",
       result,
     });
 
