@@ -38,6 +38,13 @@ const DATABASE_GUIDANCE: Record<SearchDatabaseId, string> = {
 - MeSH 공식 용어는 "Term"[MeSH Terms] 형식으로 작성하세요.
 - 제목/초록 검색은 term[Title/Abstract] 또는 term[tiab] 형식으로 작성하세요.
 - publication type은 "Randomized Controlled Trial"[pt] 같은 PubMed 필드를 사용하세요.
+
+좋은 PubMed 예시:
+("Heart Failure"[MeSH Terms] OR "heart failure"[Title/Abstract])
+AND
+("Sodium-Glucose Transporter 2 Inhibitors"[MeSH Terms] OR "SGLT2 inhibitor*"[Title/Abstract] OR empagliflozin[Title/Abstract] OR dapagliflozin[Title/Abstract])
+AND
+(hospitalization*[Title/Abstract] OR admission*[Title/Abstract])
 `.trim(),
   cinahl: `
 대상 데이터베이스: CINAHL
@@ -45,6 +52,13 @@ const DATABASE_GUIDANCE: Record<SearchDatabaseId, string> = {
 - 주제어는 MH "Term" 형식을 사용하세요. 폭넓은 하위 용어가 필요하면 MH "Term+" 형식을 제안할 수 있습니다.
 - 제목/초록 검색은 TI term 또는 AB term 형식을 사용하세요.
 - PubMed의 [MeSH Terms], [Title/Abstract], [pt] 필드는 사용하지 마세요.
+
+좋은 CINAHL 예시:
+(MH "Heart Failure+" OR TI "heart failure" OR AB "heart failure")
+AND
+(MH "Sodium-Glucose Transporter 2 Inhibitors" OR TI "SGLT2 inhibitor*" OR AB "SGLT2 inhibitor*" OR TI empagliflozin OR AB empagliflozin)
+AND
+(TI hospitalization* OR AB hospitalization* OR TI admission* OR AB admission*)
 `.trim(),
   webOfScience: `
 대상 데이터베이스: Web of Science
@@ -52,6 +66,13 @@ const DATABASE_GUIDANCE: Record<SearchDatabaseId, string> = {
 - 주제 검색은 TS=(term OR "phrase") 형식을 사용하세요.
 - 제목만 필요한 경우 TI=, 저자 키워드는 AK=를 사용할 수 있지만 기본은 TS=로 작성하세요.
 - PubMed의 MeSH 필드나 EMBASE Emtree 문법은 사용하지 마세요.
+
+좋은 Web of Science 예시:
+TS=("heart failure" OR "cardiac failure")
+AND
+TS=("SGLT2 inhibitor*" OR empagliflozin OR dapagliflozin)
+AND
+TS=(hospitalization* OR admission*)
 `.trim(),
   cochrane: `
 대상 데이터베이스: Cochrane Library
@@ -59,6 +80,13 @@ const DATABASE_GUIDANCE: Record<SearchDatabaseId, string> = {
 - MeSH descriptor는 [mh "Term"] 형식을 사용하세요.
 - 제목/초록/키워드는 :ti,ab,kw 형식을 사용하세요.
 - 인접어가 필요하면 NEAR/n을 사용할 수 있습니다.
+
+좋은 Cochrane 예시:
+([mh "Heart Failure"] OR ("heart failure" OR "cardiac failure"):ti,ab,kw)
+AND
+([mh "Sodium-Glucose Transporter 2 Inhibitors"] OR ("SGLT2 inhibitor*" OR empagliflozin OR dapagliflozin):ti,ab,kw)
+AND
+(hospitalization* OR admission*):ti,ab,kw
 `.trim(),
   embase: `
 대상 데이터베이스: EMBASE
@@ -66,6 +94,13 @@ const DATABASE_GUIDANCE: Record<SearchDatabaseId, string> = {
 - Emtree 폭넓은 검색은 'term'/exp 형식을 사용하세요.
 - 제목/초록 검색은 term:ti,ab 형식을 사용하세요.
 - PubMed의 [MeSH Terms], [Title/Abstract], [pt] 필드는 사용하지 마세요.
+
+좋은 EMBASE 예시:
+('heart failure'/exp OR 'heart failure':ti,ab OR 'cardiac failure':ti,ab)
+AND
+('sodium glucose cotransporter 2 inhibitor'/exp OR 'SGLT2 inhibitor*':ti,ab OR empagliflozin:ti,ab OR dapagliflozin:ti,ab)
+AND
+(hospitalization*:ti,ab OR admission*:ti,ab)
 `.trim(),
 };
 

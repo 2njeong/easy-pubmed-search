@@ -1,7 +1,8 @@
-import { Copy, Loader2, Settings, Trash2 } from "lucide-react";
+import { Copy, Loader2, RotateCcw, Settings, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { classifyProviderError } from "../lib/errors";
 import { getSearchDatabase, SEARCH_DATABASES } from "../lib/prompt";
+import { validateSearchQuery } from "../lib/queryValidation";
 import { getProvider } from "../providers";
 import { clearHistory, getHistory, saveHistoryItem } from "../storage/settings";
 import type {
@@ -35,6 +36,7 @@ export function Generator({ settings, onOpenSettings }: GeneratorProps) {
   const activeDatabaseConfig = getSearchDatabase(activeDatabase);
   const activeResult = resultsByDatabase[activeDatabase] ?? null;
   const isGenerating = generatingDatabase !== null;
+  const hasDraft = question.trim().length > 0 || Object.keys(resultsByDatabase).length > 0;
 
   useEffect(() => {
     void getHistory().then(setHistory);
@@ -56,9 +58,14 @@ export function Generator({ settings, onOpenSettings }: GeneratorProps) {
         { question, database },
         settings
       );
+      const validationWarnings = validateSearchQuery(database, nextResult.query);
+      const checkedResult = {
+        ...nextResult,
+        cautions: [...nextResult.cautions, ...validationWarnings],
+      };
       setResultsByDatabase((current) => ({
         ...current,
-        [database]: nextResult,
+        [database]: checkedResult,
       }));
       const nextHistory = await saveHistoryItem({
         id: crypto.randomUUID(),
@@ -67,7 +74,7 @@ export function Generator({ settings, onOpenSettings }: GeneratorProps) {
         database,
         provider: settings.provider,
         model: settings.model,
-        result: nextResult,
+        result: checkedResult,
       });
       setHistory(nextHistory);
     } catch (caught) {
@@ -102,6 +109,14 @@ export function Generator({ settings, onOpenSettings }: GeneratorProps) {
     setHistory([]);
   }
 
+  function startNewQuestion() {
+    setQuestion("");
+    setResultsByDatabase({});
+    setActiveDatabase("pubmed");
+    setError(null);
+    setCopied(false);
+  }
+
   return (
     <section className="stack">
       <div className="status-row">
@@ -134,15 +149,27 @@ export function Generator({ settings, onOpenSettings }: GeneratorProps) {
 
       {activeView === "compose" ? (
         <>
-          <label className="field">
-            <span>연구 질문</span>
+          <div className="field">
+            <div className="field-heading">
+              <label htmlFor="research-question">연구 질문</label>
+              {hasDraft ? (
+                <button
+                  type="button"
+                  className="small-text-button"
+                  onClick={startNewQuestion}
+                >
+                  새 질문
+                </button>
+              ) : null}
+            </div>
             <textarea
+              id="research-question"
               value={question}
               onChange={(event) => setQuestion(event.target.value)}
               rows={6}
               placeholder="예: 성인 심부전 환자에서 SGLT2 억제제와 입원율과의 상관관계"
             />
-          </label>
+          </div>
 
           <div
             className="database-tabs"
@@ -231,17 +258,19 @@ export function Generator({ settings, onOpenSettings }: GeneratorProps) {
             <h2>{activeDatabaseConfig.label} 검색식 초안</h2>
             <div className="result-actions">
               <button
-                className="secondary-button"
+                className="compact-action-button"
                 onClick={() => void generate(activeDatabase, { force: true })}
                 disabled={isGenerating || question.trim().length < 4}
               >
                 {generatingDatabase === activeDatabase ? (
                   <Loader2 className="spin" size={14} aria-hidden="true" />
-                ) : null}
-                다시 생성
+                ) : (
+                  <RotateCcw size={13} aria-hidden="true" />
+                )}
+                다시
               </button>
-              <button className="secondary-button" onClick={copyQuery}>
-                <Copy size={14} aria-hidden="true" />
+              <button className="compact-action-button" onClick={copyQuery}>
+                <Copy size={13} aria-hidden="true" />
                 {copied ? "복사됨" : "복사"}
               </button>
             </div>

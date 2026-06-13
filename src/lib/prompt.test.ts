@@ -21,6 +21,7 @@ describe("buildSearchMessages", () => {
     expect(messages[0].content).toContain("MH");
     expect(messages[0].content).toContain("TI");
     expect(messages[0].content).toContain("AB");
+    expect(messages[0].content).toContain("좋은 CINAHL 예시");
     expect(messages[1].content).toContain("CINAHL 검색식 초안");
   });
 
@@ -30,6 +31,7 @@ describe("buildSearchMessages", () => {
     expect(messages[0].content).toContain("EMBASE");
     expect(messages[0].content).toContain("Emtree");
     expect(messages[0].content).toContain("/exp");
+    expect(messages[0].content).toContain("좋은 EMBASE 예시");
     expect(messages[1].content).toContain("EMBASE 검색식 초안");
   });
 });

@@ -89,4 +89,25 @@ describe("Generator", () => {
 
     expect(await screen.findByText("CINAHL")).toBeInTheDocument();
   });
+
+  it("clears the draft question and visible results for a new question without deleting history", async () => {
+    vi.stubGlobal("fetch", mockFetchWithQueries());
+
+    render(<Generator settings={settings} onOpenSettings={() => undefined} />);
+
+    fireEvent.change(screen.getByLabelText("연구 질문"), {
+      target: { value: "노인 우울증 환자에서 운동 치료" },
+    });
+    fireEvent.click(screen.getByRole("tab", { name: "PubMed" }));
+    await screen.findByText("PubMed generated query");
+
+    fireEvent.click(screen.getByRole("button", { name: "새 질문" }));
+
+    expect(screen.getByLabelText("연구 질문")).toHaveValue("");
+    expect(screen.queryByText("PubMed generated query")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "기록" }));
+
+    expect(await screen.findByText("노인 우울증 환자에서 운동 치료")).toBeInTheDocument();
+  });
 });
