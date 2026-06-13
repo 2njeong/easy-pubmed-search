@@ -33,6 +33,17 @@ describe("parseGeneratedQuery", () => {
     ]);
   });
 
+  it("normalizes double-escaped quotes and newlines in the query", () => {
+    const result = parseGeneratedQuery(JSON.stringify({
+      query: "(\\\"Sleep Quality\\\" OR sleep*)\\\\nAND\\\\n(drowsiness*)",
+      explanation: [],
+      controlledVocabTerms: [],
+      cautions: [],
+    }));
+
+    expect(result.query).toBe("(\"Sleep Quality\" OR sleep*)\nAND\n(drowsiness*)");
+  });
+
   it("throws a readable error when required fields are missing", () => {
     expect(() => parseGeneratedQuery("{\"query\":\"asthma\"}")).toThrow("LLM 응답 형식이 올바르지 않습니다.");
   });

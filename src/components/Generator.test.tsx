@@ -87,6 +87,22 @@ describe("Generator", () => {
     expect(guidance.compareDocumentPosition(tabs)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
   });
 
+  it("shows database-specific result guidance and review checklist heading", async () => {
+    vi.stubGlobal("fetch", mockFetchWithQueries());
+
+    render(<Generator settings={settings} onOpenSettings={() => undefined} />);
+
+    fireEvent.change(screen.getByLabelText("연구 질문"), {
+      target: { value: "간호사 교대근무와 수면의 질" },
+    });
+    fireEvent.click(screen.getByRole("tab", { name: "Web of Science" }));
+
+    expect(await screen.findByText("Web of Science generated query")).toBeInTheDocument();
+    expect(screen.getByText("통제어 없이 TS= Topic Search 중심으로 구성합니다.")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "검색 전 확인사항" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "주의사항" })).not.toBeInTheDocument();
+  });
+
   it("shows a database chip for history items", async () => {
     vi.stubGlobal("fetch", mockFetchWithQueries());
 

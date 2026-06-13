@@ -32,6 +32,7 @@ export interface SearchDatabase {
   id: SearchDatabaseId;
   label: string;
   controlledVocabulary: string;
+  searchNote: string;
 }
 
 export interface ExplanationItem {

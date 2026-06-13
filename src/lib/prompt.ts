@@ -5,26 +5,31 @@ export const SEARCH_DATABASES: SearchDatabase[] = [
     id: "pubmed",
     label: "PubMed",
     controlledVocabulary: "MeSH",
+    searchNote: "MeSH와 제목/초록 필드를 함께 사용합니다.",
   },
   {
     id: "cinahl",
     label: "CINAHL",
     controlledVocabulary: "CINAHL Headings",
+    searchNote: "CINAHL Headings(MH), 제목(TI), 초록(AB) 필드를 사용합니다.",
   },
   {
     id: "webOfScience",
     label: "Web of Science",
     controlledVocabulary: "주요 용어",
+    searchNote: "통제어 없이 TS= Topic Search 중심으로 구성합니다.",
   },
   {
     id: "cochrane",
     label: "Cochrane",
     controlledVocabulary: "MeSH",
+    searchNote: "MeSH descriptor와 제목/초록/키워드(:ti,ab,kw)를 함께 사용합니다.",
   },
   {
     id: "embase",
     label: "EMBASE",
     controlledVocabulary: "Emtree",
+    searchNote: "Emtree 용어와 제목/초록(:ti,ab) 필드를 함께 사용합니다.",
   },
 ];
 
@@ -72,7 +77,7 @@ AND
 - CINAHL Headings 후보를 우선 고려하세요.
 - 주제어는 MH "Term" 형식을 사용하세요. 폭넓은 하위 용어가 필요하면 MH "Term+" 형식을 제안할 수 있습니다.
 - 제목/초록 검색은 TI term 또는 AB term 형식을 사용하세요.
-- PubMed 필드 태그를 사용하지 마세요. [MeSH Terms], [Title/Abstract], [tiab], [pt]는 CINAHL 검색식에 넣지 마세요.
+- PubMed의 대괄호 필드 태그나 publication type 태그는 CINAHL 검색식에 넣지 마세요.
 - Boolean 연산자 AND, OR, NOT은 반드시 대문자로 작성하세요.
 
 좋은 CINAHL 예시:
@@ -118,7 +123,7 @@ AND
 - Emtree 용어 후보를 우선 고려하세요.
 - Emtree 폭넓은 검색은 'term'/exp 형식을 사용하세요.
 - 제목/초록 검색은 term:ti,ab 형식을 사용하세요.
-- PubMed의 [MeSH Terms], [Title/Abstract], [pt] 필드는 사용하지 마세요.
+- PubMed의 대괄호 필드 태그나 publication type 태그는 사용하지 마세요.
 - Boolean 연산자 AND, OR, NOT은 반드시 대문자로 작성하세요.
 
 좋은 EMBASE 예시:
@@ -127,6 +132,77 @@ AND
 ('sodium glucose cotransporter 2 inhibitor'/exp OR 'SGLT2 inhibitor*':ti,ab OR empagliflozin:ti,ab OR dapagliflozin:ti,ab)
 AND
 (hospitalization*:ti,ab OR admission*:ti,ab)
+`.trim(),
+};
+
+const DATABASE_JSON_EXAMPLES: Record<SearchDatabaseId, string> = {
+  pubmed: `
+좋은 PubMed JSON 예시:
+{
+  "query": "(\\"Heart Failure\\"[MeSH Terms] OR \\"heart failure\\"[Title/Abstract] OR \\"cardiac failure\\"[Title/Abstract])\\nAND\\n(\\"Sodium-Glucose Transporter 2 Inhibitors\\"[MeSH Terms] OR \\"SGLT2 inhibitor*\\"[Title/Abstract] OR empagliflozin[Title/Abstract] OR dapagliflozin[Title/Abstract])\\nAND\\n(hospitalization*[Title/Abstract] OR admission*[Title/Abstract])",
+  "explanation": [
+    { "part": "heart failure group", "reason": "대상 질환을 MeSH와 제목/초록 동의어로 넓게 검색합니다." },
+    { "part": "SGLT2 inhibitor group", "reason": "약물 계열명과 대표 성분명을 함께 OR로 확장했습니다." },
+    { "part": "hospitalization group", "reason": "입원 결과를 제목/초록 키워드로 검색합니다." }
+  ],
+  "controlledVocabTerms": [
+    { "term": "Heart Failure", "confidence": "high", "note": "PubMed MeSH 질환 후보입니다." },
+    { "term": "Sodium-Glucose Transporter 2 Inhibitors", "confidence": "medium", "note": "약물 계열 MeSH 후보이며 실제 PubMed에서 확인이 필요합니다." }
+  ],
+  "cautions": ["통제어 후보는 실제 데이터베이스에서 확인하세요.", "치료 효과 질문이면 RCT 또는 체계적 문헌고찰 필터를 추가할 수 있습니다."]
+}
+`.trim(),
+  cinahl: `
+좋은 CINAHL JSON 예시:
+{
+  "query": "(MH \\"Heart Failure+\\" OR TI \\"heart failure\\" OR AB \\"heart failure\\")\\nAND\\n(MH \\"Sodium-Glucose Transporter 2 Inhibitors\\" OR TI \\"SGLT2 inhibitor*\\" OR AB \\"SGLT2 inhibitor*\\" OR TI empagliflozin OR AB empagliflozin)\\nAND\\n(TI hospitalization* OR AB hospitalization* OR TI admission* OR AB admission*)",
+  "explanation": [
+    { "part": "heart failure group", "reason": "CINAHL Headings와 제목/초록 동의어를 함께 사용합니다." },
+    { "part": "SGLT2 inhibitor group", "reason": "계열명과 성분명을 TI/AB 필드로 확장했습니다." }
+  ],
+  "controlledVocabTerms": [
+    { "term": "Heart Failure", "confidence": "medium", "note": "CINAHL Headings 후보이며 실제 CINAHL에서 확인이 필요합니다." }
+  ],
+  "cautions": ["CINAHL Headings는 실제 데이터베이스에서 확인하세요."]
+}
+`.trim(),
+  webOfScience: `
+좋은 Web of Science JSON 예시:
+{
+  "query": "TS=(\\"heart failure\\" OR \\"cardiac failure\\")\\nAND\\nTS=(\\"SGLT2 inhibitor*\\" OR empagliflozin OR dapagliflozin)\\nAND\\nTS=(hospitalization* OR admission*)",
+  "explanation": [
+    { "part": "heart failure topic", "reason": "Web of Science는 통제어가 없으므로 TS= topic field로 질환 동의어를 검색합니다." },
+    { "part": "SGLT2 inhibitor topic", "reason": "약물 계열명과 성분명을 TS=로 확장했습니다." }
+  ],
+  "controlledVocabTerms": [],
+  "cautions": ["Web of Science에는 MeSH나 Emtree 같은 통제어가 없으므로 TS= 검색식을 실제 화면에서 확인하세요."]
+}
+`.trim(),
+  cochrane: `
+좋은 Cochrane JSON 예시:
+{
+  "query": "([mh \\"Heart Failure\\"] OR (\\"heart failure\\" OR \\"cardiac failure\\"):ti,ab,kw)\\nAND\\n([mh \\"Sodium-Glucose Transporter 2 Inhibitors\\"] OR (\\"SGLT2 inhibitor*\\" OR empagliflozin OR dapagliflozin):ti,ab,kw)\\nAND\\n(hospitalization* OR admission*):ti,ab,kw",
+  "explanation": [
+    { "part": "heart failure group", "reason": "Cochrane MeSH descriptor와 제목/초록/키워드 검색을 함께 사용합니다." }
+  ],
+  "controlledVocabTerms": [
+    { "term": "Heart Failure", "confidence": "medium", "note": "Cochrane MeSH descriptor 후보입니다." }
+  ],
+  "cautions": ["Cochrane Advanced Search에서 라인별로 나눠 검토할 수 있습니다."]
+}
+`.trim(),
+  embase: `
+좋은 EMBASE JSON 예시:
+{
+  "query": "('heart failure'/exp OR 'heart failure':ti,ab OR 'cardiac failure':ti,ab)\\nAND\\n('sodium glucose cotransporter 2 inhibitor'/exp OR 'SGLT2 inhibitor*':ti,ab OR empagliflozin:ti,ab OR dapagliflozin:ti,ab)\\nAND\\n(hospitalization*:ti,ab OR admission*:ti,ab)",
+  "explanation": [
+    { "part": "heart failure group", "reason": "Emtree 폭넓은 검색과 제목/초록 동의어를 함께 사용합니다." }
+  ],
+  "controlledVocabTerms": [
+    { "term": "heart failure", "confidence": "medium", "note": "Emtree 후보이며 실제 EMBASE에서 확인이 필요합니다." }
+  ],
+  "cautions": ["EMBASE 플랫폼이 Ovid인지 Embase.com인지에 따라 문법을 확인하세요."]
+}
 `.trim(),
 };
 
@@ -171,9 +247,8 @@ const SYSTEM_PROMPT = `
    JSON 바깥에 markdown fence나 설명 문장은 쓰지 마세요.
 
 8. 연구 설계 필터는 cautions에 제안
-   - 치료 효과 → AND ("Randomized Controlled Trial"[pt] OR "Meta-Analysis"[pt])
-   - 관찰/상관 → AND ("Cohort Studies"[MeSH Terms] OR "Observational Study"[pt])
-   - 진단 → AND ("Sensitivity and Specificity"[MeSH Terms])
+   - 치료 효과, 관찰연구, 진단정확도, 체계적 문헌고찰 등은 현재 데이터베이스 문법에 맞는 필터를 cautions에만 제안하세요.
+   - 현재 데이터베이스가 PubMed가 아니라면 PubMed 전용 publication type이나 MeSH 필터를 query에 넣지 마세요.
 
 규칙:
 - PubMed를 실시간으로 검색한다고 주장하지 마세요.
@@ -196,20 +271,6 @@ const SYSTEM_PROMPT = `
   "cautions": ["string"]
 }
 
-완성된 JSON 예시:
-{
-  "query": "(\\"Heart Failure\\"[MeSH Terms] OR \\"heart failure\\"[Title/Abstract] OR \\"cardiac failure\\"[Title/Abstract])\\nAND\\n(\\"Sodium-Glucose Transporter 2 Inhibitors\\"[MeSH Terms] OR \\"SGLT2 inhibitor*\\"[Title/Abstract] OR empagliflozin[Title/Abstract] OR dapagliflozin[Title/Abstract])\\nAND\\n(hospitalization*[Title/Abstract] OR admission*[Title/Abstract])",
-  "explanation": [
-    { "part": "heart failure group", "reason": "대상 질환을 MeSH와 제목/초록 동의어로 넓게 검색합니다." },
-    { "part": "SGLT2 inhibitor group", "reason": "약물 계열명과 대표 성분명을 함께 OR로 확장했습니다." },
-    { "part": "hospitalization group", "reason": "입원 결과를 제목/초록 키워드로 검색합니다." }
-  ],
-  "controlledVocabTerms": [
-    { "term": "Heart Failure", "confidence": "high", "note": "PubMed MeSH 질환 후보입니다." },
-    { "term": "Sodium-Glucose Transporter 2 Inhibitors", "confidence": "medium", "note": "약물 계열 MeSH 후보이며 실제 PubMed에서 확인이 필요합니다." }
-  ],
-  "cautions": ["통제어 후보는 실제 데이터베이스에서 확인하세요.", "치료 효과 질문이면 RCT 또는 체계적 문헌고찰 필터를 추가할 수 있습니다."]
-}
 `.trim();
 
 export function buildSearchMessages(
@@ -220,7 +281,7 @@ export function buildSearchMessages(
   return [
     {
       role: "system",
-      content: `${SYSTEM_PROMPT}\n\n${DRUG_CLASS_CONTEXT}\n\n${DATABASE_GUIDANCE[databaseId]}`,
+      content: `${SYSTEM_PROMPT}\n\n${DRUG_CLASS_CONTEXT}\n\n${DATABASE_GUIDANCE[databaseId]}\n\n${DATABASE_JSON_EXAMPLES[databaseId]}`,
     },
     {
       role: "user",

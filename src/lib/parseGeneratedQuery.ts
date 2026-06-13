@@ -10,6 +10,13 @@ function isConfidence(value: unknown): value is ControlledVocabTermCandidate["co
   return value === "high" || value === "medium" || value === "low";
 }
 
+function normalizeQuery(query: string): string {
+  return query
+    .replace(/\\+"/g, "\"")
+    .replace(/\\+n/g, "\n")
+    .replace(/\\+\r?\n/g, "\n");
+}
+
 export function parseGeneratedQuery(raw: string): GeneratedQuery {
   let value: unknown;
 
@@ -72,7 +79,7 @@ export function parseGeneratedQuery(raw: string): GeneratedQuery {
   });
 
   return {
-    query: record.query,
+    query: normalizeQuery(record.query),
     explanation,
     controlledVocabTerms,
     cautions,

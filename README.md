@@ -10,12 +10,17 @@
 
 - 크롬 side panel
 - Ollama 로컬 LLM 지원
-- PubMed 검색식 생성
+- PubMed, CINAHL, Web of Science, Cochrane, EMBASE 검색식 생성
 - 문법 설명
-- MeSH 후보 제안
+- 데이터베이스별 통제어 후보 제안
 - 검색식 복사
 
 MVP는 PubMed 페이지에 UI를 삽입하지 않고, 검색을 자동 실행하지 않습니다.
+
+## 검색 문법 기준
+
+DB별 검색식 문법 검수 기준은 [docs/search-database-syntax.md](/Users/hwang-injeong/Desktop/yonsei/easy-pubmed-search/docs/search-database-syntax.md)에 정리되어 있습니다.
+이 문서는 개발/검수용이며, 앱이 로컬 LLM에 매번 전체 내용을 보내지는 않습니다.
 
 ## 로컬 LLM 준비
 

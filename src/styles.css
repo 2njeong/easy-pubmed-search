@@ -405,6 +405,13 @@ button:disabled {
   line-height: 1.45;
 }
 
+.result-note {
+  margin: -2px 0 0;
+  color: #5f6b7a;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
 .result h3 {
   font-size: 13px;
 }

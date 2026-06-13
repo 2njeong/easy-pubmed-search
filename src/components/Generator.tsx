@@ -283,6 +283,7 @@ export function Generator({ settings, onOpenSettings }: GeneratorProps) {
             </div>
           </div>
           <pre>{activeResult.query}</pre>
+          <p className="result-note">{activeDatabaseConfig.searchNote}</p>
 
           <h3>문법 설명</h3>
           <ul>
@@ -302,7 +303,7 @@ export function Generator({ settings, onOpenSettings }: GeneratorProps) {
             ))}
           </ul>
 
-          <h3>주의사항</h3>
+          <h3>검색 전 확인사항</h3>
           <ul>
             {activeResult.cautions.map((item) => (
               <li key={item}>{item}</li>

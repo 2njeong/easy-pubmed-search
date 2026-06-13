@@ -1,5 +1,20 @@
 import { describe, expect, it } from "vitest";
 import { buildSearchMessages } from "./prompt";
+import type { SearchDatabaseId } from "../types";
+
+const NON_PUBMED_DATABASES: SearchDatabaseId[] = [
+  "cinahl",
+  "webOfScience",
+  "cochrane",
+  "embase",
+];
+
+const PUBMED_ONLY_TOKENS = [
+  "[MeSH Terms]",
+  "[Title/Abstract]",
+  "[tiab]",
+  "[pt]",
+];
 
 describe("buildSearchMessages", () => {
   it("includes PubMed safety and JSON-only instructions", () => {
@@ -11,7 +26,7 @@ describe("buildSearchMessages", () => {
     expect(messages[0].content).toContain("PICO");
     expect(messages[0].content).toContain("empagliflozin");
     expect(messages[0].content).toContain("controlledVocabTerms");
-    expect(messages[0].content).toContain("완성된 JSON 예시");
+    expect(messages[0].content).toContain("좋은 PubMed JSON 예시");
     expect(messages[0].content).toContain("AND NOT");
     expect(messages[0].content).toContain("와일드카드");
     expect(messages[0].content).toContain("query 문자열에는 AND 그룹 사이에 \\n을 포함");
@@ -27,7 +42,7 @@ describe("buildSearchMessages", () => {
     expect(messages[0].content).toContain("TI");
     expect(messages[0].content).toContain("AB");
     expect(messages[0].content).toContain("좋은 CINAHL 예시");
-    expect(messages[0].content).toContain("PubMed 필드 태그를 사용하지 마세요");
+    expect(messages[0].content).toContain("PubMed의 대괄호 필드 태그");
     expect(messages[1].content).toContain("CINAHL 검색식 초안");
   });
 
@@ -46,6 +61,20 @@ describe("buildSearchMessages", () => {
 
     expect(messages[0].content).toContain("controlledVocabTerms는 빈 배열");
     expect(messages[0].content).toContain("AK=");
+    expect(messages[0].content).toContain("좋은 Web of Science JSON 예시");
+    expect(messages[0].content).not.toContain("[MeSH Terms]");
+    expect(messages[0].content).not.toContain("[Title/Abstract]");
+    expect(messages[0].content).not.toContain("[pt]");
+  });
+
+  it("does not leak PubMed-only field tags into non-PubMed prompts", () => {
+    for (const database of NON_PUBMED_DATABASES) {
+      const messages = buildSearchMessages(database, "간호사의 교대근무와 수면의 질");
+
+      for (const token of PUBMED_ONLY_TOKENS) {
+        expect(messages[0].content, `${database} prompt should not include ${token}`).not.toContain(token);
+      }
+    }
   });
 
   it("injects a bounded drug class dictionary", () => {
