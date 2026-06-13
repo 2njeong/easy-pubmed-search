@@ -92,6 +92,7 @@ describe("Generator", () => {
 
   it("clears the draft question and visible results for a new question without deleting history", async () => {
     vi.stubGlobal("fetch", mockFetchWithQueries());
+    const confirm = vi.spyOn(window, "confirm").mockReturnValue(true);
 
     render(<Generator settings={settings} onOpenSettings={() => undefined} />);
 
@@ -103,11 +104,32 @@ describe("Generator", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "새 질문" }));
 
+    expect(confirm).toHaveBeenCalledWith(
+      "현재 입력한 질문과 화면에 생성된 검색식이 초기화됩니다.\n생성된 검색식은 기록 탭에서 다시 확인할 수 있습니다."
+    );
     expect(screen.getByLabelText("연구 질문")).toHaveValue("");
     expect(screen.queryByText("PubMed generated query")).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "기록" }));
 
     expect(await screen.findByText("노인 우울증 환자에서 운동 치료")).toBeInTheDocument();
+  });
+
+  it("keeps the current draft when the new question confirmation is cancelled", async () => {
+    vi.stubGlobal("fetch", mockFetchWithQueries());
+    vi.spyOn(window, "confirm").mockReturnValue(false);
+
+    render(<Generator settings={settings} onOpenSettings={() => undefined} />);
+
+    fireEvent.change(screen.getByLabelText("연구 질문"), {
+      target: { value: "노인 우울증 환자에서 운동 치료" },
+    });
+    fireEvent.click(screen.getByRole("tab", { name: "PubMed" }));
+    await screen.findByText("PubMed generated query");
+
+    fireEvent.click(screen.getByRole("button", { name: "새 질문" }));
+
+    expect(screen.getByLabelText("연구 질문")).toHaveValue("노인 우울증 환자에서 운동 치료");
+    expect(screen.getByText("PubMed generated query")).toBeInTheDocument();
   });
 });

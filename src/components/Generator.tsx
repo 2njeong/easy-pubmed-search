@@ -20,6 +20,9 @@ interface GeneratorProps {
 
 type DatabaseResultState = Partial<Record<SearchDatabaseId, GeneratedQuery>>;
 
+const NEW_QUESTION_CONFIRM_MESSAGE =
+  "현재 입력한 질문과 화면에 생성된 검색식이 초기화됩니다.\n생성된 검색식은 기록 탭에서 다시 확인할 수 있습니다.";
+
 export function Generator({ settings, onOpenSettings }: GeneratorProps) {
   const [activeView, setActiveView] = useState<"compose" | "history">(
     "compose"
@@ -110,6 +113,10 @@ export function Generator({ settings, onOpenSettings }: GeneratorProps) {
   }
 
   function startNewQuestion() {
+    if (!window.confirm(NEW_QUESTION_CONFIRM_MESSAGE)) {
+      return;
+    }
+
     setQuestion("");
     setResultsByDatabase({});
     setActiveDatabase("pubmed");
