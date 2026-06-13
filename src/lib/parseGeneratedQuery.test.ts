@@ -6,18 +6,31 @@ describe("parseGeneratedQuery", () => {
     const result = parseGeneratedQuery(JSON.stringify({
       query: "(heart failure[Title/Abstract]) AND (sglt2[Title/Abstract])",
       explanation: [{ part: "AND", reason: "두 개념을 모두 포함합니다." }],
-      meshTerms: [{ term: "Heart Failure", confidence: "high", note: "질환 후보입니다." }],
+      controlledVocabTerms: [{ term: "Heart Failure", confidence: "high", note: "질환 후보입니다." }],
       cautions: ["MeSH 후보는 PubMed에서 검토하세요."],
     }));
 
     expect(result.query).toContain("heart failure");
-    expect(result.meshTerms[0].confidence).toBe("high");
+    expect(result.controlledVocabTerms[0].confidence).toBe("high");
   });
 
   it("extracts JSON from a fenced code block", () => {
-    const result = parseGeneratedQuery("```json\n{\"query\":\"asthma\",\"explanation\":[],\"meshTerms\":[],\"cautions\":[]}\n```");
+    const result = parseGeneratedQuery("```json\n{\"query\":\"asthma\",\"explanation\":[],\"controlledVocabTerms\":[],\"cautions\":[]}\n```");
 
     expect(result.query).toBe("asthma");
+  });
+
+  it("keeps compatibility with legacy meshTerms responses", () => {
+    const result = parseGeneratedQuery(JSON.stringify({
+      query: "asthma",
+      explanation: [],
+      meshTerms: [{ term: "Asthma", confidence: "high", note: "기존 필드입니다." }],
+      cautions: [],
+    }));
+
+    expect(result.controlledVocabTerms).toEqual([
+      { term: "Asthma", confidence: "high", note: "기존 필드입니다." },
+    ]);
   });
 
   it("throws a readable error when required fields are missing", () => {

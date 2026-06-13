@@ -39,7 +39,7 @@ export interface ExplanationItem {
   reason: string;
 }
 
-export interface MeshTermCandidate {
+export interface ControlledVocabTermCandidate {
   term: string;
   confidence: "high" | "medium" | "low";
   note: string;
@@ -48,7 +48,8 @@ export interface MeshTermCandidate {
 export interface GeneratedQuery {
   query: string;
   explanation: ExplanationItem[];
-  meshTerms: MeshTermCandidate[];
+  controlledVocabTerms: ControlledVocabTermCandidate[];
+  meshTerms?: ControlledVocabTermCandidate[];
   cautions: string[];
   raw?: string;
 }

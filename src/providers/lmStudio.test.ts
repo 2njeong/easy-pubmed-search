@@ -26,7 +26,7 @@ describe("lmStudioProvider", () => {
           content: JSON.stringify({
             query: "diabetes mellitus[MeSH Terms]",
             explanation: [],
-            meshTerms: [],
+            controlledVocabTerms: [],
             cautions: [],
           }),
         },

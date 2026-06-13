@@ -51,7 +51,7 @@ describe("settings storage", () => {
     const result = {
       query: "asthma[Title/Abstract]",
       explanation: [],
-      meshTerms: [],
+      controlledVocabTerms: [],
       cautions: [],
     };
 
@@ -88,7 +88,7 @@ describe("settings storage", () => {
       result: {
         query: "query",
         explanation: [],
-        meshTerms: [],
+        controlledVocabTerms: [],
         cautions: [],
       },
     });

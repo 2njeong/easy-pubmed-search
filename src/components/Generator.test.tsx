@@ -15,7 +15,9 @@ function mockFetchWithQueries() {
     const body = JSON.parse(String(init?.body ?? "{}")) as {
       messages?: Array<{ content: string }>;
     };
-    const prompt = body.messages?.map((message) => message.content).join("\n") ?? "";
+    const prompt = body.messages?.find((message) =>
+      message.content.includes("검색식 초안")
+    )?.content ?? "";
     const database = prompt.includes("CINAHL")
       ? "CINAHL"
       : prompt.includes("Web of Science")
@@ -31,7 +33,7 @@ function mockFetchWithQueries() {
         content: JSON.stringify({
           query: `${database} generated query`,
           explanation: [{ part: database, reason: `${database} 문법을 사용했습니다.` }],
-          meshTerms: [],
+          controlledVocabTerms: [],
           cautions: [],
         }),
       },

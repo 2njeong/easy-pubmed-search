@@ -1,4 +1,4 @@
-import type { GeneratedQuery, MeshTermCandidate } from "../types";
+import type { ControlledVocabTermCandidate, GeneratedQuery } from "../types";
 
 function extractJson(raw: string): string {
   const trimmed = raw.trim();
@@ -6,7 +6,7 @@ function extractJson(raw: string): string {
   return fenced ? fenced[1].trim() : trimmed;
 }
 
-function isConfidence(value: unknown): value is MeshTermCandidate["confidence"] {
+function isConfidence(value: unknown): value is ControlledVocabTermCandidate["confidence"] {
   return value === "high" || value === "medium" || value === "low";
 }
 
@@ -28,7 +28,7 @@ export function parseGeneratedQuery(raw: string): GeneratedQuery {
   if (
     typeof record.query !== "string" ||
     !Array.isArray(record.explanation) ||
-    !Array.isArray(record.meshTerms) ||
+    (!Array.isArray(record.controlledVocabTerms) && !Array.isArray(record.meshTerms)) ||
     !Array.isArray(record.cautions)
   ) {
     throw new Error("LLM 응답 형식이 올바르지 않습니다.");
@@ -45,7 +45,11 @@ export function parseGeneratedQuery(raw: string): GeneratedQuery {
     return { part: entry.part, reason: entry.reason };
   });
 
-  const meshTerms = record.meshTerms.map((item) => {
+  const controlledVocabTermsInput: unknown[] = Array.isArray(record.controlledVocabTerms)
+    ? record.controlledVocabTerms
+    : record.meshTerms as unknown[];
+
+  const controlledVocabTerms = controlledVocabTermsInput.map((item) => {
     if (!item || typeof item !== "object") {
       throw new Error("LLM 응답 형식이 올바르지 않습니다.");
     }
@@ -70,7 +74,7 @@ export function parseGeneratedQuery(raw: string): GeneratedQuery {
   return {
     query: record.query,
     explanation,
-    meshTerms,
+    controlledVocabTerms,
     cautions,
     raw,
   };

@@ -25,7 +25,7 @@ describe("ollamaProvider", () => {
         content: JSON.stringify({
           query: "asthma[Title/Abstract]",
           explanation: [],
-          meshTerms: [],
+          controlledVocabTerms: [],
           cautions: [],
         }),
       },

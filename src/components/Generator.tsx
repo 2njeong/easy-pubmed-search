@@ -38,6 +38,8 @@ export function Generator({ settings, onOpenSettings }: GeneratorProps) {
   const provider = getProvider(settings.provider);
   const activeDatabaseConfig = getSearchDatabase(activeDatabase);
   const activeResult = resultsByDatabase[activeDatabase] ?? null;
+  const activeControlledTerms =
+    activeResult?.controlledVocabTerms ?? activeResult?.meshTerms ?? [];
   const isGenerating = generatingDatabase !== null;
   const hasDraft = question.trim().length > 0 || Object.keys(resultsByDatabase).length > 0;
 
@@ -295,7 +297,7 @@ export function Generator({ settings, onOpenSettings }: GeneratorProps) {
 
           <h3>{activeDatabaseConfig.controlledVocabulary} 후보</h3>
           <ul>
-            {activeResult.meshTerms.map((item) => (
+            {activeControlledTerms.map((item) => (
               <li key={item.term}>
                 <strong>{item.term}</strong> ({item.confidence}): {item.note}
               </li>
