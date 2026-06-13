@@ -4,7 +4,7 @@
 
 ## 배포
 
-- Chrome Web Store: <https://chromewebstore.google.com/search/Easy%20PubMed%20Search>
+- Chrome Web Store: <https://chromewebstore.google.com/detail/easy-pubmed-search/ebahifkcefggmbfobcjmepdfladggpmg>
 
 ## MVP 범위
 
