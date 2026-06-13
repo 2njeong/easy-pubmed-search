@@ -1,4 +1,4 @@
-import { buildPubMedMessages } from "../lib/prompt";
+import { buildSearchMessages } from "../lib/prompt";
 import { parseGeneratedQuery } from "../lib/parseGeneratedQuery";
 import type { ConnectionResult, GenerateInput, GeneratedQuery, LlmProvider, ProviderConfig } from "../types";
 
@@ -35,7 +35,7 @@ export const lmStudioProvider: LlmProvider = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         model: config.model,
-        messages: buildPubMedMessages(input.question),
+        messages: buildSearchMessages(input.database ?? "pubmed", input.question),
         temperature: 0.2,
         stream: false,
         response_format: { type: "json_object" },

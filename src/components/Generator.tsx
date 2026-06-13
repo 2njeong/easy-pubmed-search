@@ -1,10 +1,12 @@
 import { Copy, Loader2, Settings, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { classifyProviderError } from "../lib/errors";
+import { getSearchDatabase, SEARCH_DATABASES } from "../lib/prompt";
 import { getProvider } from "../providers";
 import { clearHistory, getHistory, saveHistoryItem } from "../storage/settings";
 import type {
   GeneratedQuery,
+  SearchDatabaseId,
   SearchHistoryItem,
   StoredSettings,
   UserFacingError,
@@ -15,37 +17,54 @@ interface GeneratorProps {
   onOpenSettings(): void;
 }
 
+type DatabaseResultState = Partial<Record<SearchDatabaseId, GeneratedQuery>>;
+
 export function Generator({ settings, onOpenSettings }: GeneratorProps) {
   const [activeView, setActiveView] = useState<"compose" | "history">(
     "compose"
   );
   const [question, setQuestion] = useState("");
-  const [result, setResult] = useState<GeneratedQuery | null>(null);
+  const [activeDatabase, setActiveDatabase] = useState<SearchDatabaseId>("pubmed");
+  const [resultsByDatabase, setResultsByDatabase] = useState<DatabaseResultState>({});
   const [history, setHistory] = useState<SearchHistoryItem[]>([]);
   const [error, setError] = useState<UserFacingError | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatingDatabase, setGeneratingDatabase] = useState<SearchDatabaseId | null>(null);
   const [copied, setCopied] = useState(false);
 
   const provider = getProvider(settings.provider);
+  const activeDatabaseConfig = getSearchDatabase(activeDatabase);
+  const activeResult = resultsByDatabase[activeDatabase] ?? null;
+  const isGenerating = generatingDatabase !== null;
 
   useEffect(() => {
     void getHistory().then(setHistory);
   }, []);
 
-  async function generate() {
-    setIsGenerating(true);
+  async function generate(database: SearchDatabaseId, options: { force?: boolean } = {}) {
+    if (!options.force && resultsByDatabase[database]) {
+      setActiveDatabase(database);
+      setCopied(false);
+      return;
+    }
+
+    setActiveDatabase(database);
+    setGeneratingDatabase(database);
     setError(null);
     setCopied(false);
     try {
       const nextResult = await provider.generatePubMedQuery(
-        { question },
+        { question, database },
         settings
       );
-      setResult(nextResult);
+      setResultsByDatabase((current) => ({
+        ...current,
+        [database]: nextResult,
+      }));
       const nextHistory = await saveHistoryItem({
         id: crypto.randomUUID(),
         createdAt: new Date().toISOString(),
         question: question.trim(),
+        database,
         provider: settings.provider,
         model: settings.model,
         result: nextResult,
@@ -54,21 +73,26 @@ export function Generator({ settings, onOpenSettings }: GeneratorProps) {
     } catch (caught) {
       setError(classifyProviderError(caught, settings.provider));
     } finally {
-      setIsGenerating(false);
+      setGeneratingDatabase(null);
     }
   }
 
   async function copyQuery() {
-    if (!result?.query) {
+    if (!activeResult?.query) {
       return;
     }
-    await navigator.clipboard.writeText(result.query);
+    await navigator.clipboard.writeText(activeResult.query);
     setCopied(true);
   }
 
   function openHistoryItem(item: SearchHistoryItem) {
+    const database = item.database ?? "pubmed";
     setQuestion(item.question);
-    setResult(item.result);
+    setActiveDatabase(database);
+    setResultsByDatabase((current) => ({
+      ...current,
+      [database]: item.result,
+    }));
     setCopied(false);
     setActiveView("compose");
   }
@@ -120,16 +144,35 @@ export function Generator({ settings, onOpenSettings }: GeneratorProps) {
             />
           </label>
 
-          <button
-            className="primary-button"
-            onClick={generate}
-            disabled={isGenerating || question.trim().length < 4}
+          <div
+            className="database-tabs"
+            role="tablist"
+            aria-label="검색 데이터베이스 선택"
           >
-            {isGenerating ? (
-              <Loader2 className="spin" size={16} aria-hidden="true" />
-            ) : null}
-            {isGenerating ? "검색식 생성 중..." : "PubMed 검색식 생성"}
-          </button>
+            {SEARCH_DATABASES.map((database) => {
+              const databaseResult = resultsByDatabase[database.id];
+              const isActive = activeDatabase === database.id;
+              const isCurrentGenerating = generatingDatabase === database.id;
+
+              return (
+                <button
+                  key={database.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  className={isActive ? "active" : ""}
+                  onClick={() => void generate(database.id)}
+                  disabled={isGenerating || question.trim().length < 4}
+                >
+                  {isCurrentGenerating ? (
+                    <Loader2 className="spin" size={14} aria-hidden="true" />
+                  ) : null}
+                  {database.label}
+                  {databaseResult ? <span aria-hidden="true" /> : null}
+                </button>
+              );
+            })}
+          </div>
         </>
       ) : (
         <div className="history-panel">
@@ -149,7 +192,12 @@ export function Generator({ settings, onOpenSettings }: GeneratorProps) {
               {history.map((item) => (
                 <li key={item.id}>
                   <button type="button" onClick={() => openHistoryItem(item)}>
-                    <strong>{item.question}</strong>
+                    <div className="history-item-header">
+                      <strong>{item.question}</strong>
+                      <span className="database-chip">
+                        {getSearchDatabase(item.database ?? "pubmed").label}
+                      </span>
+                    </div>
                     <span>
                       {new Date(item.createdAt).toLocaleString()} · {item.model}
                     </span>
@@ -171,29 +219,47 @@ export function Generator({ settings, onOpenSettings }: GeneratorProps) {
         </div>
       ) : null}
 
-      {result && activeView === "compose" ? (
+      {activeView === "compose" && !activeResult && !error ? (
+        <p className="muted">
+          {activeDatabaseConfig.label} 탭을 누르면 해당 데이터베이스 문법에 맞춘 검색식이 생성됩니다.
+        </p>
+      ) : null}
+
+      {activeResult && activeView === "compose" ? (
         <div className="result">
           <div className="result-header">
-            <h2>검색식 초안</h2>
-            <button className="secondary-button" onClick={copyQuery}>
-              <Copy size={14} aria-hidden="true" />
-              {copied ? "복사됨" : "복사"}
-            </button>
+            <h2>{activeDatabaseConfig.label} 검색식 초안</h2>
+            <div className="result-actions">
+              <button
+                className="secondary-button"
+                onClick={() => void generate(activeDatabase, { force: true })}
+                disabled={isGenerating || question.trim().length < 4}
+              >
+                {generatingDatabase === activeDatabase ? (
+                  <Loader2 className="spin" size={14} aria-hidden="true" />
+                ) : null}
+                다시 생성
+              </button>
+              <button className="secondary-button" onClick={copyQuery}>
+                <Copy size={14} aria-hidden="true" />
+                {copied ? "복사됨" : "복사"}
+              </button>
+            </div>
           </div>
-          <pre>{result.query}</pre>
+          <pre>{activeResult.query}</pre>
 
           <h3>문법 설명</h3>
           <ul>
-            {result.explanation.map((item) => (
+            {activeResult.explanation.map((item) => (
               <li key={`${item.part}-${item.reason}`}>
                 <strong>{item.part}</strong>: {item.reason}
               </li>
             ))}
           </ul>
 
-          <h3>MeSH 후보</h3>
+          <h3>{activeDatabaseConfig.controlledVocabulary} 후보</h3>
           <ul>
-            {result.meshTerms.map((item) => (
+            {activeResult.meshTerms.map((item) => (
               <li key={item.term}>
                 <strong>{item.term}</strong> ({item.confidence}): {item.note}
               </li>
@@ -202,7 +268,7 @@ export function Generator({ settings, onOpenSettings }: GeneratorProps) {
 
           <h3>주의사항</h3>
           <ul>
-            {result.cautions.map((item) => (
+            {activeResult.cautions.map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>

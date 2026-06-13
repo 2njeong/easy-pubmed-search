@@ -1,8 +1,77 @@
-import type { ChatMessage } from "../types";
+import type { ChatMessage, SearchDatabase, SearchDatabaseId } from "../types";
+
+export const SEARCH_DATABASES: SearchDatabase[] = [
+  {
+    id: "pubmed",
+    label: "PubMed",
+    controlledVocabulary: "MeSH",
+  },
+  {
+    id: "cinahl",
+    label: "CINAHL",
+    controlledVocabulary: "CINAHL Headings",
+  },
+  {
+    id: "webOfScience",
+    label: "Web of Science",
+    controlledVocabulary: "주요 용어",
+  },
+  {
+    id: "cochrane",
+    label: "Cochrane",
+    controlledVocabulary: "MeSH",
+  },
+  {
+    id: "embase",
+    label: "EMBASE",
+    controlledVocabulary: "Emtree",
+  },
+];
+
+export function getSearchDatabase(id: SearchDatabaseId): SearchDatabase {
+  return SEARCH_DATABASES.find((database) => database.id === id) ?? SEARCH_DATABASES[0];
+}
+
+const DATABASE_GUIDANCE: Record<SearchDatabaseId, string> = {
+  pubmed: `
+대상 데이터베이스: PubMed
+- MeSH 공식 용어는 "Term"[MeSH Terms] 형식으로 작성하세요.
+- 제목/초록 검색은 term[Title/Abstract] 또는 term[tiab] 형식으로 작성하세요.
+- publication type은 "Randomized Controlled Trial"[pt] 같은 PubMed 필드를 사용하세요.
+`.trim(),
+  cinahl: `
+대상 데이터베이스: CINAHL
+- CINAHL Headings 후보를 우선 고려하세요.
+- 주제어는 MH "Term" 형식을 사용하세요. 폭넓은 하위 용어가 필요하면 MH "Term+" 형식을 제안할 수 있습니다.
+- 제목/초록 검색은 TI term 또는 AB term 형식을 사용하세요.
+- PubMed의 [MeSH Terms], [Title/Abstract], [pt] 필드는 사용하지 마세요.
+`.trim(),
+  webOfScience: `
+대상 데이터베이스: Web of Science
+- 통제어가 없으므로 Topic Search 중심으로 작성하세요.
+- 주제 검색은 TS=(term OR "phrase") 형식을 사용하세요.
+- 제목만 필요한 경우 TI=, 저자 키워드는 AK=를 사용할 수 있지만 기본은 TS=로 작성하세요.
+- PubMed의 MeSH 필드나 EMBASE Emtree 문법은 사용하지 마세요.
+`.trim(),
+  cochrane: `
+대상 데이터베이스: Cochrane Library
+- Cochrane 검색 인터페이스에서 쓸 수 있는 검색식으로 작성하세요.
+- MeSH descriptor는 [mh "Term"] 형식을 사용하세요.
+- 제목/초록/키워드는 :ti,ab,kw 형식을 사용하세요.
+- 인접어가 필요하면 NEAR/n을 사용할 수 있습니다.
+`.trim(),
+  embase: `
+대상 데이터베이스: EMBASE
+- Emtree 용어 후보를 우선 고려하세요.
+- Emtree 폭넓은 검색은 'term'/exp 형식을 사용하세요.
+- 제목/초록 검색은 term:ti,ab 형식을 사용하세요.
+- PubMed의 [MeSH Terms], [Title/Abstract], [pt] 필드는 사용하지 마세요.
+`.trim(),
+};
 
 const SYSTEM_PROMPT = `
-당신은 PubMed 임상 검색식 작성 전문가입니다.
-사용자의 한국어 질문을 PubMed에서 바로 쓸 수 있는 영어 검색식으로 변환하세요.
+당신은 의학 문헌 데이터베이스 검색식 작성 전문가입니다.
+사용자의 한국어 질문을 지정된 데이터베이스에서 바로 쓸 수 있는 영어 검색식으로 변환하세요.
 
 검색식 작성 방법:
 
@@ -14,9 +83,9 @@ const SYSTEM_PROMPT = `
 
 2. 각 요소별 동의어 그룹
    각 PICO 요소를 OR 그룹으로 구성하세요:
-   - "MeSH 공식 용어"[MeSH Terms]
-   - "동의어/약어"[Title/Abstract]
-   - 어미 변형은 * 사용: 반드시 필드 태그 앞에 붙이세요 (올바름: hospitalization*[Title/Abstract] / 잘못됨: hospitalization[Title/Abstract]*)
+   - 지정된 데이터베이스의 통제어 또는 주제어
+   - 지정된 데이터베이스의 제목/초록/주제 필드
+   - 어미 변형은 * 사용: 반드시 데이터베이스 문법에 맞는 위치에 붙이세요
    - P에 질환/상태와 인구 한정자가 함께 있으면 둘 다 별도 AND 그룹으로 작성하세요
      예) "심부전 성인 환자" → (heart failure 그룹) AND (adult 그룹)
 
@@ -37,10 +106,11 @@ const SYSTEM_PROMPT = `
 
 규칙:
 - PubMed를 실시간으로 검색한다고 주장하지 마세요.
+- 어떤 데이터베이스도 실시간으로 검색한다고 주장하지 마세요.
 - 논문 수나 특정 논문을 지어내지 마세요.
-- MeSH 용어는 후보로 제시하고 confidence를 정직하게 평가하세요.
+- 통제어 후보는 데이터베이스에 맞게 제시하고 confidence를 정직하게 평가하세요.
 - 식별 가능한 환자 정보가 있으면 cautions에 익명화 안내를 포함하세요.
-- query 필드는 영어 PubMed 검색식으로 작성하세요.
+- query 필드는 영어 검색식으로 작성하세요.
 - explanation의 reason, meshTerms의 note, cautions는 반드시 한국어로 작성하세요.
 - JSON만 반환하세요. markdown fence, 설명 문장, 머리말 없이.
 
@@ -53,12 +123,23 @@ const SYSTEM_PROMPT = `
 }
 `.trim();
 
-export function buildPubMedMessages(question: string): ChatMessage[] {
+export function buildSearchMessages(
+  databaseId: SearchDatabaseId,
+  question: string
+): ChatMessage[] {
+  const database = getSearchDatabase(databaseId);
   return [
-    { role: "system", content: SYSTEM_PROMPT },
+    {
+      role: "system",
+      content: `${SYSTEM_PROMPT}\n\n${DATABASE_GUIDANCE[databaseId]}`,
+    },
     {
       role: "user",
-      content: `다음 연구 질문을 PubMed 검색식 초안으로 변환하세요.\n\n${question.trim()}`,
+      content: `다음 연구 질문을 ${database.label} 검색식 초안으로 변환하세요.\n\n${question.trim()}`,
     },
   ];
+}
+
+export function buildPubMedMessages(question: string): ChatMessage[] {
+  return buildSearchMessages("pubmed", question);
 }

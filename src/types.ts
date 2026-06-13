@@ -18,6 +18,20 @@ export interface ChatMessage {
 
 export interface GenerateInput {
   question: string;
+  database?: SearchDatabaseId;
+}
+
+export type SearchDatabaseId =
+  | "pubmed"
+  | "cinahl"
+  | "webOfScience"
+  | "cochrane"
+  | "embase";
+
+export interface SearchDatabase {
+  id: SearchDatabaseId;
+  label: string;
+  controlledVocabulary: string;
 }
 
 export interface ExplanationItem {
@@ -43,6 +57,7 @@ export interface SearchHistoryItem {
   id: string;
   createdAt: string;
   question: string;
+  database?: SearchDatabaseId;
   provider: ProviderId;
   model: string;
   result: GeneratedQuery;

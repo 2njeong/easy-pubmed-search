@@ -251,6 +251,45 @@ button:disabled {
   border-color: #c8d8f3;
 }
 
+.database-tabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 4px;
+  border: 1px solid #d8dee8;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.database-tabs button {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: #415064;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.database-tabs button.active {
+  border-color: #bdd3fb;
+  background: #1f6feb;
+  color: #ffffff;
+}
+
+.database-tabs button span {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
 .icon-button {
   display: inline-flex;
   align-items: center;
@@ -295,6 +334,13 @@ button:disabled {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
 }
 
 .result pre {
@@ -348,11 +394,28 @@ button:disabled {
   text-align: left;
 }
 
-.history-list strong {
+.history-item-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 8px;
+}
+
+.history-item-header strong {
   overflow: hidden;
   font-size: 13px;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.history-list .database-chip {
+  border-radius: 999px;
+  background: #eef4ff;
+  color: #1f4d8f;
+  padding: 2px 7px;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.4;
 }
 
 .history-list span {
