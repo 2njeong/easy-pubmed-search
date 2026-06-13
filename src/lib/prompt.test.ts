@@ -80,6 +80,14 @@ describe("buildSearchMessages", () => {
     }
   });
 
+  it("tells non-PubMed databases not to mix syntax from other databases", () => {
+    for (const database of NON_PUBMED_DATABASES) {
+      const messages = buildSearchMessages(database, "간호사의 교대근무와 수면의 질");
+
+      expect(messages[0].content).toContain("다른 데이터베이스 문법을 섞지 마세요");
+    }
+  });
+
   it("injects a bounded drug class dictionary", () => {
     const messages = buildSearchMessages("pubmed", "고혈압 약물");
 

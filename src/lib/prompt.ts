@@ -77,10 +77,12 @@ AND
 `.trim(),
   cinahl: `
 대상 데이터베이스: CINAHL
+- 다른 데이터베이스 문법을 섞지 마세요.
 - CINAHL Headings 후보를 우선 고려하세요.
 - 주제어는 MH "Term" 형식을 사용하세요. 폭넓은 하위 용어가 필요하면 MH "Term+" 형식을 제안할 수 있습니다.
 - 제목/초록 검색은 TI term 또는 AB term 형식을 사용하세요.
 - PubMed의 대괄호 필드 태그나 publication type 태그는 CINAHL 검색식에 넣지 마세요.
+- Web of Science의 TS=, Cochrane의 descriptor/near 문법, EMBASE의 /exp 문법은 넣지 마세요.
 - Boolean 연산자 AND, OR, NOT은 반드시 대문자로 작성하세요.
 
 좋은 CINAHL 예시:
@@ -92,10 +94,11 @@ AND
 `.trim(),
   webOfScience: `
 대상 데이터베이스: Web of Science
+- 다른 데이터베이스 문법을 섞지 마세요.
 - 통제어가 없으므로 Topic Search 중심으로 작성하세요.
 - 주제 검색은 TS=(term OR "phrase") 형식을 사용하세요.
 - 제목만 필요한 경우 TI=, 저자 키워드는 AK=를 사용할 수 있지만 기본은 TS=로 작성하세요.
-- PubMed의 MeSH 필드나 EMBASE Emtree 문법은 사용하지 마세요.
+- PubMed의 MeSH 필드, CINAHL Headings, Cochrane descriptor, EMBASE Emtree 문법은 사용하지 마세요.
 - controlledVocabTerms는 빈 배열로 두세요. 단, 사용자가 키워드 후보를 명시적으로 원하면 AK=에 넣을 수 있는 저자 키워드 후보를 confidence low로 제안하세요.
 - Boolean 연산자 AND, OR, NOT은 반드시 대문자로 작성하세요.
 
@@ -108,10 +111,12 @@ TS=(hospitalization* OR admission*)
 `.trim(),
   cochrane: `
 대상 데이터베이스: Cochrane Library
+- 다른 데이터베이스 문법을 섞지 마세요.
 - Cochrane 검색 인터페이스에서 쓸 수 있는 검색식으로 작성하세요.
 - MeSH descriptor는 [mh "Term"] 형식을 사용하세요.
 - 제목/초록/키워드는 :ti,ab,kw 형식을 사용하세요.
 - 인접어가 필요하면 NEAR/n을 사용할 수 있습니다.
+- PubMed의 대괄호 필드 태그, CINAHL의 MH/TI/AB, Web of Science의 TS=, EMBASE의 /exp 문법은 넣지 마세요.
 - Boolean 연산자 AND, OR, NOT은 반드시 대문자로 작성하세요.
 
 좋은 Cochrane 예시:
@@ -123,10 +128,12 @@ AND
 `.trim(),
   embase: `
 대상 데이터베이스: EMBASE
+- 다른 데이터베이스 문법을 섞지 마세요.
 - Emtree 용어 후보를 우선 고려하세요.
 - Emtree 폭넓은 검색은 'term'/exp 형식을 사용하세요.
 - 제목/초록 검색은 term:ti,ab 형식을 사용하세요.
 - PubMed의 대괄호 필드 태그나 publication type 태그는 사용하지 마세요.
+- CINAHL의 MH/TI/AB, Web of Science의 TS=, Cochrane의 descriptor/near 문법은 넣지 마세요.
 - Boolean 연산자 AND, OR, NOT은 반드시 대문자로 작성하세요.
 
 좋은 EMBASE 예시:

@@ -11,6 +11,7 @@
 - 와일드카드는 너무 짧은 어간에 붙이지 않는다.
 - 논문 수, 실제 검색 결과, 특정 논문 존재 여부를 지어내지 않는다.
 - 연구 설계 필터는 검색식 본문에 무리하게 넣기보다 확인사항에서 제안한다.
+- 한 데이터베이스의 필드 문법을 다른 데이터베이스 검색식에 섞지 않는다.
 
 ## PubMed
 
@@ -38,6 +39,7 @@ AND
 - 제목: `TI "heart failure"`
 - 초록: `AB "heart failure"`
 - PubMed 태그인 `[MeSH Terms]`, `[Title/Abstract]`, `[pt]`는 사용하지 않는다.
+- Web of Science의 `TS=`, Cochrane의 `[mh ...]`/`NEAR/n`, EMBASE의 `/exp` 문법은 사용하지 않는다.
 
 예시:
 
@@ -54,6 +56,7 @@ AND
 - 제목 검색: `TI=(...)`
 - 저자 키워드: `AK=(...)`
 - MeSH, CINAHL Headings, Emtree 문법을 사용하지 않는다.
+- CINAHL의 `MH`/`TI`/`AB`, Cochrane의 `[mh ...]`/`:ti,ab,kw`, EMBASE의 `/exp` 문법을 사용하지 않는다.
 - `controlledVocabTerms`는 기본적으로 빈 배열이어야 한다.
 
 예시:
@@ -71,6 +74,7 @@ TS=("SGLT2 inhibitor*" OR empagliflozin OR dapagliflozin)
 - 제목/초록/키워드: `:ti,ab,kw`
 - 인접어: `NEAR/n`
 - PubMed의 `[MeSH Terms]`, `[Title/Abstract]`, `[pt]` 형식은 사용하지 않는다.
+- CINAHL의 `MH`/`TI`/`AB`, Web of Science의 `TS=`, EMBASE의 `/exp` 문법은 사용하지 않는다.
 
 예시:
 
@@ -86,6 +90,7 @@ AND
 - 폭넓은 Emtree 검색: `'heart failure'/exp`
 - 제목/초록: `'heart failure':ti,ab`
 - PubMed 태그인 `[MeSH Terms]`, `[Title/Abstract]`, `[pt]`는 사용하지 않는다.
+- CINAHL의 `MH`/`TI`/`AB`, Web of Science의 `TS=`, Cochrane의 `[mh ...]`/`NEAR/n` 문법은 사용하지 않는다.
 - EMBASE 플랫폼이 Ovid인지 Embase.com인지에 따라 세부 문법 차이가 있을 수 있으므로 확인사항에 안내한다.
 
 예시:

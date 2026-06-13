@@ -55,4 +55,40 @@ describe("validateSearchQuery", () => {
 
     expect(warnings).toContain("검색식의 괄호나 대괄호 짝이 맞지 않을 수 있습니다.");
   });
+
+  it("warns when a Web of Science query mixes controlled vocabulary syntax", () => {
+    const warnings = validateSearchQuery(
+      "webOfScience",
+      'TS=("sleep quality") AND (MH "Nurses" OR \'shift work\'/exp OR [mh "Sleep"])'
+    );
+
+    expect(warnings).toContain("Web of Science 검색식에 다른 데이터베이스의 통제어 문법이 섞였을 수 있습니다.");
+  });
+
+  it("warns when a CINAHL query mixes Web of Science or EMBASE syntax", () => {
+    const warnings = validateSearchQuery(
+      "cinahl",
+      'MH "Nurses" AND TS=("shift work") AND \'sleep quality\':ti,ab'
+    );
+
+    expect(warnings).toContain("CINAHL 검색식에 다른 데이터베이스의 필드 문법이 섞였을 수 있습니다.");
+  });
+
+  it("warns when a Cochrane query mixes PubMed or EMBASE syntax", () => {
+    const warnings = validateSearchQuery(
+      "cochrane",
+      '([mh "Asthma"] OR asthma[Title/Abstract]) AND \'infection\'/exp'
+    );
+
+    expect(warnings).toContain("Cochrane 검색식에 다른 데이터베이스의 필드 문법이 섞였을 수 있습니다.");
+  });
+
+  it("warns when an EMBASE query mixes CINAHL or Web of Science syntax", () => {
+    const warnings = validateSearchQuery(
+      "embase",
+      "'asthma'/exp AND MH \"Nurses\" AND TS=(sleep)"
+    );
+
+    expect(warnings).toContain("EMBASE 검색식에 다른 데이터베이스의 필드 문법이 섞였을 수 있습니다.");
+  });
 });
