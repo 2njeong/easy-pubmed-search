@@ -304,6 +304,13 @@ button:disabled {
   background: #ffffff;
 }
 
+.database-tabs-guidance {
+  margin: -4px 0 -2px;
+  color: #5f6b7a;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
 .database-tabs button {
   display: inline-flex;
   flex: 0 0 auto;

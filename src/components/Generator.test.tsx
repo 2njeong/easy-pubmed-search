@@ -76,6 +76,17 @@ describe("Generator", () => {
     await waitFor(() => expect(fetch).toHaveBeenCalledTimes(2));
   });
 
+  it("shows database tab guidance between the question and database tabs", () => {
+    render(<Generator settings={settings} onOpenSettings={() => undefined} />);
+
+    const question = screen.getByLabelText("연구 질문");
+    const guidance = screen.getByText("DB 탭을 누르면 해당 데이터베이스 문법에 맞춘 검색식이 생성됩니다.");
+    const tabs = screen.getByRole("tablist", { name: "검색 데이터베이스 선택" });
+
+    expect(question.compareDocumentPosition(guidance)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(guidance.compareDocumentPosition(tabs)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+
   it("shows a database chip for history items", async () => {
     vi.stubGlobal("fetch", mockFetchWithQueries());
 

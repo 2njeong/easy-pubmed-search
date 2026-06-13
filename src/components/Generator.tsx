@@ -180,6 +180,10 @@ export function Generator({ settings, onOpenSettings }: GeneratorProps) {
             />
           </div>
 
+          <p className="database-tabs-guidance">
+            DB 탭을 누르면 해당 데이터베이스 문법에 맞춘 검색식이 생성됩니다.
+          </p>
+
           <div
             className="database-tabs"
             role="tablist"
@@ -253,12 +257,6 @@ export function Generator({ settings, onOpenSettings }: GeneratorProps) {
           <strong>{error.title}</strong>
           <p>{error.message}</p>
         </div>
-      ) : null}
-
-      {activeView === "compose" && !activeResult && !error ? (
-        <p className="muted">
-          {activeDatabaseConfig.label} 탭을 누르면 해당 데이터베이스 문법에 맞춘 검색식이 생성됩니다.
-        </p>
       ) : null}
 
       {activeResult && activeView === "compose" ? (
