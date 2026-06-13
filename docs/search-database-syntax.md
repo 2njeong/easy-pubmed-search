@@ -19,6 +19,9 @@
 - 제목/초록: `"heart failure"[Title/Abstract]` 또는 `heart failure[tiab]`
 - 출판 유형: `"Randomized Controlled Trial"[pt]`
 - PubMed 전용 태그는 PubMed 검색식에만 사용한다.
+- 확실하지 않은 MeSH 용어는 검색식 본문에 넣지 않고 후보/확인사항으로만 제안한다.
+- `[Filter]`는 질환, 증상, 제외 키워드용 필드로 사용하지 않는다.
+- publication type 필드에는 와일드카드를 붙이지 않는다.
 
 예시:
 

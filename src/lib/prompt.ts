@@ -59,9 +59,12 @@ const DRUG_CLASS_CONTEXT = `
 const DATABASE_GUIDANCE: Record<SearchDatabaseId, string> = {
   pubmed: `
 대상 데이터베이스: PubMed
-- MeSH 공식 용어는 "Term"[MeSH Terms] 형식으로 작성하세요.
+- MeSH 공식 용어가 확실한 경우에만 "Term"[MeSH Terms] 형식으로 작성하세요.
+- 확실하지 않은 MeSH 용어는 query 본문에 넣지 말고 controlledVocabTerms 후보나 cautions에만 제안하세요.
 - 제목/초록 검색은 term[Title/Abstract] 또는 term[tiab] 형식으로 작성하세요.
-- publication type은 "Randomized Controlled Trial"[pt] 같은 PubMed 필드를 사용하세요.
+- [Filter]를 임상 키워드 필드로 사용하지 마세요. 질환, 증상, 제외 키워드는 [Title/Abstract]를 사용하세요.
+- publication type에는 와일드카드를 붙이지 마세요. 필요한 경우 "Randomized Controlled Trial"[pt]처럼 정확한 publication type만 사용하세요.
+- 연구설계 필터는 사용자가 명시적으로 요청한 경우가 아니면 query에 넣지 말고 cautions에 제안하세요.
 - Boolean 연산자 AND, OR, NOT은 반드시 대문자로 작성하세요.
 - PubMed 와일드카드는 최소 4글자 이상의 어간 뒤에만 사용하세요. 너무 짧은 truncation 예: card*는 피하고 cardi*처럼 더 구체화하세요.
 
@@ -235,7 +238,7 @@ const SYSTEM_PROMPT = `
 
 5. 제외 조건 처리
    사용자가 "제외", "빼고", "단 ... 제외"라고 말하면 별도 AND NOT 그룹으로 작성하세요.
-   예) 임산부 제외 → AND NOT (pregnan*[필드] OR "pregnant women"[필드])
+   예) 임산부 제외 → AND NOT (pregnan* 또는 "pregnant women"를 현재 데이터베이스의 제목/초록/주제 필드 문법으로 작성)
 
 6. Boolean과 와일드카드
    - Boolean 연산자 AND, OR, NOT은 항상 대문자로 작성하세요.

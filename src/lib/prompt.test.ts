@@ -30,6 +30,9 @@ describe("buildSearchMessages", () => {
     expect(messages[0].content).toContain("AND NOT");
     expect(messages[0].content).toContain("와일드카드");
     expect(messages[0].content).toContain("query 문자열에는 AND 그룹 사이에 \\n을 포함");
+    expect(messages[0].content).toContain("확실하지 않은 MeSH");
+    expect(messages[0].content).toContain("[Filter]를 임상 키워드 필드로 사용하지 마세요");
+    expect(messages[0].content).toContain("publication type에는 와일드카드를 붙이지 마세요");
     expect(messages[1].content).toContain("성인 심부전");
   });
 
