@@ -2,6 +2,10 @@
 
 자연어 연구 질문을 PubMed 검색식 초안으로 변환하는 크롬 익스텐션입니다.
 
+## 배포
+
+- Chrome Web Store: <https://chromewebstore.google.com/search/Easy%20PubMed%20Search>
+
 ## MVP 범위
 
 - 크롬 side panel
